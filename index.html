@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c1210">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>세움 콕핏</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;600&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+/* Layout: one vertical instrument panel (portrait touchscreen) — HUD on top, then paired avionics modules, stacking to one column on phones. Single committed night-cockpit look. */
+:root{
+  --bg:#0c1210;          /* panel cavity */
+  --panel:#16201d;       /* module face */
+  --panel-2:#1d2a26;     /* raised bezel */
+  --line:#2f403a;        /* engraved rules */
+  --ink:#d9e2d6;         /* engraved label white */
+  --dim:#7f948b;         /* secondary label */
+  --phos:#7dffb0;        /* phosphor numerals */
+  --amber:#f2b544;       /* incandescent / VU */
+  --cream:#e9e1c6;       /* bakelite keys */
+  --cream-ink:#2a261b;
+  --brass:#b99a5b;
+  --warn:#ff5a3c;
+  --hud-sky:#3f6c86;
+  --f-label:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-data:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --f-ko:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color-scheme:dark;
+  --dimmer:0;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-ko);font-size:14px;line-height:1.4;
+  padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));padding-block:12px;
+  -webkit-tap-highlight-color:transparent;user-select:none}
+body::after{content:"";position:fixed;inset:0;background:#000;opacity:var(--dimmer);pointer-events:none;z-index:50;transition:opacity .2s}
+.rack{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.mod{background:linear-gradient(180deg,var(--panel-2),var(--panel) 40%);border:1px solid var(--line);border-radius:6px;
+  box-shadow:inset 0 1px 0 #ffffff10,0 2px 0 #00000080;padding:10px 12px;position:relative;min-width:0}
+.mod::before,.mod::after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;top:6px;
+  background:radial-gradient(circle at 35% 35%,#8a8f88,#3b403c 70%);box-shadow:0 0 0 1px #00000080}
+.mod::before{left:6px}.mod::after{right:6px}
+.mh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 8px 8px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.mh h2{margin:0;font:600 13px/1 var(--f-label);letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+.mh small{font:500 11px var(--f-label);letter-spacing:.08em;color:var(--dim)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:640px){.grid2{grid-template-columns:1fr}}
+.lbl{font:600 10.5px/1 var(--f-label);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.num{font-family:var(--f-data);font-variant-numeric:tabular-nums;color:var(--phos);text-shadow:0 0 6px #7dffb055}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+
+/* top strip */
+.strip{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand b{font:700 20px/1 var(--f-label);letter-spacing:.18em}
+.brand span{font:500 11px var(--f-label);letter-spacing:.12em;color:var(--brass)}
+.clock{font:600 26px/1 var(--f-data)}
+.pill{font:600 11px var(--f-label);letter-spacing:.1em;padding:4px 8px;border-radius:3px;border:1px solid var(--line);color:var(--dim);background:#0006}
+.pill.on{color:#0c1210;background:var(--phos);border-color:var(--phos)}
+.pill.warn{color:#fff;background:var(--warn);border-color:var(--warn)}
+
+/* HUD */
+.hudwrap{position:relative;border-radius:4px;overflow:hidden;border:1px solid #000;background:#000}
+#hud{display:block;width:100%;height:auto;aspect-ratio:16/8.2}
+.view{display:none}.view.on{display:block}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.tab{background:#0b100e;border:1px solid var(--line);border-radius:3px;padding:8px 4px;font:600 12px var(--f-label);letter-spacing:.1em;color:var(--dim)}
+.tab[aria-pressed="true"]{color:var(--phos);border-color:#3e7a58;box-shadow:inset 0 0 12px #7dffb022}
+#gauge,#compass{display:block;width:100%;max-width:520px;margin:0 auto;aspect-ratio:16/8.2;height:auto}
+.hint{font-size:12px;color:var(--dim);margin:6px 2px 0}
+
+/* media */
+.screen{background:#071009;border:1px solid #000;border-radius:3px;box-shadow:inset 0 0 16px #000;padding:8px}
+.media-top{display:grid;grid-template-columns:84px 1fr;gap:10px}
+.cover{aspect-ratio:1;border-radius:3px;background:repeating-linear-gradient(45deg,#1b2622 0 6px,#16201c 6px 12px);display:grid;place-items:center;font:700 22px var(--f-label);color:var(--brass);border:1px solid var(--line)}
+.ttl{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.art{font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.time{font-size:30px;line-height:1.1}
+#spec{display:block;width:100%;height:56px;margin-top:6px}
+.keys{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
+.key{background:linear-gradient(180deg,#f4eed8,var(--cream) 55%,#cfc5a4);color:var(--cream-ink);border:0;border-radius:3px;padding:10px 0;font:700 15px var(--f-data);
+  box-shadow:0 3px 0 #6e6650,0 4px 6px #000a;transition:transform .05s,box-shadow .05s}
+.key:active,.key.down{transform:translateY(3px);box-shadow:0 0 0 #6e6650,0 1px 2px #000a}
+.key.lit{background:linear-gradient(180deg,#ffd98a,var(--amber) 55%,#c98d20)}
+.row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.row .lbl{width:34px}
+input[type=range]{flex:1;accent-color:var(--brass);min-width:0}
+.file{display:flex;gap:6px;margin-top:8px}
+.btn{background:#0b100e;border:1px solid var(--line);border-radius:3px;padding:7px 10px;font:600 12px var(--f-label);letter-spacing:.08em;color:var(--ink)}
+.btn.primary{border-color:var(--brass);color:var(--brass)}
+#fileIn{display:none}
+.list{max-height:96px;overflow:auto;margin-top:6px;font-size:12px}
+.list div{padding:4px 6px;border-bottom:1px solid #ffffff0a;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--dim)}
+.list div.cur{color:var(--phos)}
+
+/* radio */
+.fm{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.freq{font-size:34px;line-height:1}
+.knob{width:64px;height:64px;border-radius:50%;flex:none;touch-action:none;
+  background:radial-gradient(circle at 40% 35%,#5d625c,#262a27 60%,#121513);box-shadow:0 0 0 3px #0b0e0c,0 0 0 4px var(--brass),0 4px 8px #000;position:relative}
+.knob i{position:absolute;left:50%;top:6px;width:3px;height:16px;margin-left:-1.5px;background:var(--cream);border-radius:2px;transform-origin:50% 26px}
+#dial{display:block;width:100%;height:58px;margin-top:8px;border-radius:3px}
+.presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.presets .key{font-size:22px;padding:12px 0}
+.presets .key small{display:block;font:500 10px var(--f-label);letter-spacing:.06em}
+
+/* cockpit control */
+.ctl{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+@media (max-width:640px){.ctl{grid-template-columns:repeat(3,1fr)}}
+.cell{background:#0b100e;border:1px solid var(--line);border-radius:3px;padding:8px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.cell .lbl{text-align:center}
+.tog{width:30px;height:46px;border-radius:15px;border:0;background:linear-gradient(90deg,#2b302c,#4b514c,#2b302c);position:relative;box-shadow:inset 0 0 0 2px #000}
+.tog::after{content:"";position:absolute;left:5px;right:5px;height:20px;top:4px;border-radius:10px;background:linear-gradient(180deg,#e8e8e2,#9fa39c);box-shadow:0 2px 3px #000;transition:top .12s}
+.tog[aria-pressed="true"]::after{top:22px}
+.led{width:9px;height:9px;border-radius:50%;background:#2a2f2b;box-shadow:inset 0 0 2px #000}
+.led.on{background:var(--phos);box-shadow:0 0 8px var(--phos)}
+.led.amb{background:var(--amber);box-shadow:0 0 8px var(--amber)}
+.emer{width:56px;height:46px;border-radius:4px;border:2px solid #111;background:repeating-linear-gradient(135deg,#f2c230 0 8px,#141414 8px 16px);font:700 11px var(--f-label);letter-spacing:.08em;color:#fff;text-shadow:0 0 3px #000}
+.emer[aria-pressed="true"]{animation:haz 0.9s steps(1) infinite}
+@keyframes haz{50%{filter:brightness(1.8) saturate(1.4)}}
+.mini{width:52px;height:52px}
+.state{font:600 10px var(--f-label);letter-spacing:.1em;color:var(--dim)}
+
+/* nav / eq / apps */
+.navrow{display:flex;gap:6px;flex-wrap:wrap}
+.navrow input{flex:1 1 180px;min-width:0;background:#071009;border:1px solid var(--line);border-radius:3px;color:var(--ink);padding:9px 10px;font:14px var(--f-ko)}
+.eq{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;align-items:end;height:150px;padding-top:6px}
+.band{display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
+.band input{writing-mode:vertical-lr;direction:rtl;flex:1;width:22px;accent-color:var(--amber)}
+.band span{font:500 9.5px var(--f-data);color:var(--dim)}
+.apps{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.app{display:flex;align-items:center;gap:10px;padding:10px;background:#0b100e;border:1px solid var(--line);border-radius:3px;color:var(--ink);text-decoration:none}
+.app i{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-style:normal;font:700 13px var(--f-label);flex:none}
+.app b{display:block;font-size:13px}.app small{color:var(--dim);font-size:11px}
+.note{font-size:11.5px;color:var(--dim);margin:8px 2px 0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="rack">
+  <!-- top strip -->
+  <section class="mod">
+    <div class="strip" style="margin:0 8px">
+      <div class="brand"><b>SEUM ONE</b><span>VEHICLE COCKPIT · 세움이엔씨</span></div>
+      <div class="bar">
+        <span class="pill" id="pillGps">GPS OFF</span>
+        <span class="pill" id="pillDrive">DRIVE SIM OFF</span>
+        <span class="pill" id="pillHaz" hidden>HAZARD</span>
+        <span class="pill" id="pillNight">DAY</span>
+      </div>
+      <div style="text-align:right"><div class="clock num" id="clock">--:--</div><div class="lbl" id="date">----</div></div>
+    </div>
+  </section>
+
+  <!-- HUD / flight view -->
+  <section class="mod">
+    <div class="mh"><h2>Primary Display</h2><small id="hudInfo">HDG 000° · 0 km/h</small></div>
+    <div class="view on" id="v-hud"><div class="hudwrap"><canvas id="hud" width="960" height="492"></canvas></div></div>
+    <div class="view" id="v-gauge"><canvas id="gauge" width="960" height="492"></canvas></div>
+    <div class="view" id="v-compass"><canvas id="compass" width="960" height="492"></canvas></div>
+    <div class="view" id="v-trip">
+      <div class="screen" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+        <div><div class="lbl">주행거리</div><div class="num" style="font-size:30px" id="tripKm">0.0</div><div class="lbl">KM</div></div>
+        <div><div class="lbl">주행시간</div><div class="num" style="font-size:30px" id="tripT">00:00</div><div class="lbl">MIN:SEC</div></div>
+        <div><div class="lbl">평균속도</div><div class="num" style="font-size:30px" id="tripAvg">0</div><div class="lbl">KM/H</div></div>
+      </div>
+      <div class="bar" style="margin-top:8px"><button class="btn" id="tripReset">트립 초기화</button></div>
+    </div>
+    <div class="tabs" role="group" aria-label="표시 화면">
+      <button class="tab" aria-pressed="true" data-v="hud">HUD</button>
+      <button class="tab" aria-pressed="false" data-v="gauge">SPEED</button>
+      <button class="tab" aria-pressed="false" data-v="compass">COMPASS</button>
+      <button class="tab" aria-pressed="false" data-v="trip">TRIP</button>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <span class="lbl" style="width:auto">주행 시뮬레이션</span>
+      <button class="tog mini" id="simTog" aria-pressed="false" aria-label="주행 시뮬레이션" style="width:30px;height:46px"></button>
+      <span class="lbl" style="width:auto">목표 속도</span>
+      <input type="range" id="simSpeed" min="0" max="140" value="80" aria-label="목표 속도">
+      <span class="num" id="simSpeedV" style="width:44px;text-align:right">80</span>
+    </div>
+    <div class="row" style="margin-top:6px">
+      <span class="lbl" style="width:auto">GPS 실제 속도</span>
+      <button class="tog mini" id="gpsTog" aria-pressed="false" aria-label="GPS 실제 속도" style="width:30px;height:46px"></button>
+      <span class="state" id="gpsState">OFF</span>
+    </div>
+    <p class="hint">GPS를 켜면 태블릿 위치로 실제 속도·방향·주행거리를 표시합니다(처음 한 번 위치 권한 허용). 시뮬레이션은 시험용입니다.</p>
+  </section>
+
+  <!-- media + radio -->
+  <div class="grid2">
+    <section class="mod">
+      <div class="mh"><h2>Seum One Player</h2><small id="plState">STANDBY</small></div>
+      <div class="screen">
+        <div class="media-top">
+          <div class="cover" id="cover">♪</div>
+          <div style="min-width:0">
+            <div class="time num" id="ptime">00:00</div>
+            <div class="ttl" id="ptitle">음악 파일을 불러오세요</div>
+            <div class="art" id="pinfo">아래 [음악 불러오기] — 기기의 mp3·m4a 파일</div>
+          </div>
+        </div>
+        <canvas id="spec" width="600" height="112"></canvas>
+      </div>
+      <div class="keys">
+        <button class="key" id="kPrev" aria-label="이전 곡">⏮</button>
+        <button class="key" id="kPlay" aria-label="재생">▶</button>
+        <button class="key" id="kPause" aria-label="일시정지">⏸</button>
+        <button class="key" id="kStop" aria-label="정지">■</button>
+        <button class="key" id="kNext" aria-label="다음 곡">⏭</button>
+      </div>
+      <div class="row"><span class="lbl">VOL</span><input type="range" id="vol" min="0" max="100" value="70" aria-label="음량"><span class="num" id="volV" style="width:30px;text-align:right">70</span></div>
+      <div class="row"><span class="lbl">BAL</span><input type="range" id="bal" min="-100" max="100" value="0" aria-label="좌우 밸런스"><span class="num" id="balV" style="width:30px;text-align:right">C</span></div>
+      <div class="row"><span class="lbl">POS</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="재생 위치"></div>
+      <div class="file"><button class="btn primary" id="loadBtn">음악 불러오기</button><input type="file" id="fileIn" accept="audio/*" multiple><button class="btn" id="shufBtn" aria-pressed="false">셔플 OFF</button></div>
+      <div class="list" id="plist"></div>
+    </section>
+
+    <section class="mod">
+      <div class="mh"><h2>Radio / Communication</h2><small>FM TUNER</small></div>
+      <div class="screen">
+        <div class="fm">
+          <div><div class="lbl">FM · MHz</div><div class="freq num" id="freq">95.9</div><div class="lbl" id="stName" style="margin-top:4px">튜닝 중</div></div>
+          <div class="knob" id="knob" role="slider" tabindex="0" aria-label="주파수 다이얼" aria-valuemin="88" aria-valuemax="108" aria-valuenow="95.9"><i></i></div>
+        </div>
+        <canvas id="dial" width="600" height="116"></canvas>
+      </div>
+      <div class="presets" id="presets"></div>
+      <p class="note">프리셋 짧게 누르기: 주파수 이동 · 길게 누르기(1초): 현재 주파수 저장. 방송 소리는 나오지 않으며, 실제 청취는 아래 외부 앱을 이용하세요.</p>
+    </section>
+  </div>
+
+  <!-- cockpit control -->
+  <section class="mod">
+    <div class="mh"><h2>Cockpit Control</h2><small>PANEL · LIGHTING · SAFETY</small></div>
+    <div class="ctl">
+      <div class="cell"><span class="lbl">패널 밝기</span><div class="knob" id="dimKnob" role="slider" tabindex="0" aria-label="패널 밝기" aria-valuemin="20" aria-valuemax="100" aria-valuenow="100"><i></i></div><span class="state num" id="dimV">100%</span></div>
+      <div class="cell"><span class="lbl">야간 모드</span><button class="tog" id="tNight" aria-pressed="false" aria-label="야간 모드"></button><span class="led" id="lNight"></span></div>
+      <div class="cell"><span class="lbl">Emergency</span><button class="emer" id="tHaz" aria-pressed="false">HAZARD</button><span class="led" id="lHaz"></span></div>
+      <div class="cell"><span class="lbl">화면 유지</span><button class="tog" id="tWake" aria-pressed="false" aria-label="화면 꺼짐 방지"></button><span class="state" id="sWake">OFF</span></div>
+      <div class="cell"><span class="lbl">전체 화면</span><button class="tog" id="tFull" aria-pressed="false" aria-label="전체 화면"></button><span class="state" id="sFull">OFF</span></div>
+    </div>
+  </section>
+
+  <!-- navigation -->
+  <section class="mod">
+    <div class="mh"><h2>Navigation</h2><small>EXTERNAL ROUTING</small></div>
+    <form class="navrow" id="navForm">
+      <input id="dest" placeholder="목적지 (예: 칠곡군청, 팔공산 동산야영장)" aria-label="목적지" autocomplete="off">
+      <a class="btn primary" id="goKakao" href="https://map.kakao.com/" target="_blank" rel="noopener">카카오맵</a>
+      <a class="btn" id="goNaver" href="https://map.naver.com/" target="_blank" rel="noopener">네이버지도</a>
+    </form>
+    <p class="note">목적지를 입력하고 지도 버튼을 누르면 새 창에서 검색합니다. 길 안내는 지도 앱에서 시작하세요.</p>
+  </section>
+
+  <!-- eq + apps -->
+  <div class="grid2">
+    <section class="mod">
+      <div class="mh"><h2>Equalizer</h2>
+        <div class="bar"><button class="btn" data-eq="flat">FLAT</button><button class="btn" data-eq="bass">BASS</button><button class="btn" data-eq="vocal">VOCAL</button><button class="btn" data-eq="road">ROAD</button></div></div>
+      <div class="screen"><div class="eq" id="eq"></div></div>
+      <p class="note">불러온 음악에 실제로 적용됩니다 (±12 dB).</p>
+    </section>
+    <section class="mod">
+      <div class="mh"><h2>External Apps</h2><small>LINK OUT</small></div>
+      <div class="apps">
+        <a class="app" href="https://music.youtube.com/" target="_blank" rel="noopener"><i style="background:#c4302b">YT</i><span><b>YouTube Music</b><small>음악 스트리밍</small></span></a>
+        <a class="app" href="https://map.kakao.com/" target="_blank" rel="noopener"><i style="background:#f7d94c;color:#222">K</i><span><b>카카오맵</b><small>길찾기</small></span></a>
+        <a class="app" href="https://map.naver.com/" target="_blank" rel="noopener"><i style="background:#2db400">N</i><span><b>네이버지도</b><small>길찾기</small></span></a>
+        <a class="app" href="https://kong.kbs.co.kr/" target="_blank" rel="noopener"><i style="background:#1f4fa3">콩</i><span><b>KBS 콩</b><small>라디오 청취</small></span></a>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k,d){try{const v=localStorage.getItem('seum-'+k);return v==null?d:JSON.parse(v)}catch{return d}},set(k,v){try{localStorage.setItem('seum-'+k,JSON.stringify(v))}catch{}}};
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- clock ---------- */
+const DAYS=['일','월','화','수','목','금','토'];
+function tick(){const d=new Date();$('#clock').textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  $('#date').textContent=`${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} (${DAYS[d.getDay()]})`}
+tick();setInterval(tick,5000);
+
+/* ---------- drive state ---------- */
+const S={speed:0,target:80,sim:false,heading:113,dist:0,time:0,road:0};
+$('#simSpeed').oninput=e=>{S.target=+e.target.value;$('#simSpeedV').textContent=S.target};
+$('#simTog').onclick=e=>{if(!S.sim&&S.gps)gpsSet(false);S.sim=!S.sim;e.currentTarget.setAttribute('aria-pressed',S.sim);
+  const p=$('#pillDrive');p.textContent=S.sim?'DRIVE SIM ON':'DRIVE SIM OFF';p.classList.toggle('on',S.sim)};
+$('#tripReset').onclick=()=>{S.dist=0;S.time=0};
+/* ---------- GPS ---------- */
+let gpsId=null,gpsLast=null;S.gps=false;
+function hav(a,b){const R=6371,r=Math.PI/180,dLa=(b.latitude-a.latitude)*r,dLo=(b.longitude-a.longitude)*r;
+  const x=Math.sin(dLa/2)**2+Math.cos(a.latitude*r)*Math.cos(b.latitude*r)*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+function bearing(a,b){const r=Math.PI/180,y=Math.sin((b.longitude-a.longitude)*r)*Math.cos(b.latitude*r),
+  x=Math.cos(a.latitude*r)*Math.sin(b.latitude*r)-Math.sin(a.latitude*r)*Math.cos(b.latitude*r)*Math.cos((b.longitude-a.longitude)*r);return (Math.atan2(y,x)/r+360)%360}
+function gpsSet(on){const t=$('#gpsTog'),p=$('#pillGps');
+  if(on){if(!('geolocation' in navigator)){$('#gpsState').textContent='미지원';return}
+    if(S.sim)$('#simTog').click();S.gps=true;t.setAttribute('aria-pressed','true');$('#gpsState').textContent='수신 대기';p.textContent='GPS …';
+    gpsId=navigator.geolocation.watchPosition(pos=>{const c=pos.coords,now=pos.timestamp;let v=c.speed;
+      if(gpsLast){const km=hav(gpsLast.c,c),dt=(now-gpsLast.t)/3600000;if(v==null&&dt>0)v=km/dt/3.6;
+        if(km>0.003&&(c.accuracy||99)<50){S.dist+=km;if(c.heading==null||isNaN(c.heading))S.gpsHeading=bearing(gpsLast.c,c)}}
+      if(c.heading!=null&&!isNaN(c.heading)&&(v||0)>1)S.gpsHeading=c.heading;
+      S.gpsSpeed=Math.max(0,(v||0)*3.6);gpsLast={c,t:now};
+      $('#gpsState').textContent='수신 ±'+Math.round(c.accuracy)+'m';p.textContent='GPS ON';p.classList.add('on')},
+     err=>{$('#gpsState').textContent=err.code===1?'권한 거부':'신호 없음';p.textContent='GPS ERR';p.classList.remove('on')},
+     {enableHighAccuracy:true,maximumAge:1000,timeout:15000})}
+  else{if(gpsId!=null)navigator.geolocation.clearWatch(gpsId);gpsId=null;gpsLast=null;S.gps=false;S.gpsSpeed=0;
+    t.setAttribute('aria-pressed','false');$('#gpsState').textContent='OFF';p.textContent='GPS OFF';p.classList.remove('on')}
+  store.set('gps',on)}
+$('#gpsTog').onclick=()=>gpsSet(!S.gps);
+if(store.get('gps',false))gpsSet(true);
+
+
+/* view tabs */
+$$('.tab').forEach(t=>t.onclick=()=>{$$('.tab').forEach(x=>x.setAttribute('aria-pressed',x===t));
+  $$('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+t.dataset.v));store.set('view',t.dataset.v)});
+const sv=store.get('view','hud');const st=$(`.tab[data-v="${sv}"]`);if(st)st.click();
+
+/* ---------- HUD canvas ---------- */
+const hud=$('#hud'),hc=hud.getContext('2d');
+function drawHUD(){
+  const W=hud.width,H=hud.height,c=hc,horizon=H*0.46;
+  const night=document.documentElement.dataset.night==='1';
+  let g=c.createLinearGradient(0,0,0,horizon);g.addColorStop(0,night?'#06121c':'#2e5f7c');g.addColorStop(1,night?'#16303a':'#a9c7cf');
+  c.fillStyle=g;c.fillRect(0,0,W,horizon);
+  // clouds
+  c.fillStyle=night?'#ffffff10':'#ffffff55';
+  for(let i=0;i<6;i++){const x=((i*190- S.road*0.3)%(W+200)+W+200)%(W+200)-100,y=40+(i%3)*34;
+    c.beginPath();c.ellipse(x,y,70,12,0,0,7);c.ellipse(x+40,y-8,40,10,0,0,7);c.fill()}
+  g=c.createLinearGradient(0,horizon,0,H);g.addColorStop(0,night?'#1b2a22':'#7d9a6a');g.addColorStop(1,night?'#0c140f':'#3f5a35');
+  c.fillStyle=g;c.fillRect(0,horizon,W,H-horizon);
+  // runway / road trapezoid
+  const cx=W/2,topW=24,botW=W*0.62;
+  c.fillStyle=night?'#2a2f2e':'#5e6563';c.beginPath();c.moveTo(cx-topW,horizon);c.lineTo(cx+topW,horizon);c.lineTo(cx+botW/2,H);c.lineTo(cx-botW/2,H);c.fill();
+  // threshold bars
+  c.fillStyle='#e9eef0';
+  for(let k=-5;k<=5;k++){if(!k)continue;const x0=cx+k*(botW/26),x1=cx+k*(topW/6);
+    c.globalAlpha=.75;c.beginPath();c.moveTo(x0-6,H);c.lineTo(x0+6,H);c.lineTo(x1+0.6,horizon+2);c.lineTo(x1-0.6,horizon+2);c.fill()}
+  c.globalAlpha=1;
+  // centerline dashes moving
+  for(let i=0;i<14;i++){const z=((i/14)+(S.road%60)/60/14*14)%1;const p=Math.pow(z,2.2);
+    const y=horizon+(H-horizon)*p,w=2+16*p,h=6+50*p;c.fillStyle='#f6f2df';c.fillRect(cx-w/2,y,w,h*0.6)}
+  // pitch ladder
+  c.strokeStyle='#e8fff1';c.fillStyle='#e8fff1';c.lineWidth=2;c.font='600 18px "IBM Plex Mono",monospace';c.textAlign='center';
+  [-20,-10,10,20].forEach(p=>{const y=horizon-p*5;c.beginPath();c.moveTo(cx-90,y);c.lineTo(cx-40,y);c.moveTo(cx+40,y);c.lineTo(cx+90,y);c.stroke();
+    c.fillText(Math.abs(p),cx-112,y+6);c.fillText(Math.abs(p),cx+112,y+6)});
+  // flight path marker
+  c.beginPath();c.arc(cx,horizon,12,0,7);c.moveTo(cx-34,horizon);c.lineTo(cx-12,horizon);c.moveTo(cx+12,horizon);c.lineTo(cx+34,horizon);c.moveTo(cx,horizon-12);c.lineTo(cx,horizon-24);c.stroke();
+  // speed tape (left)
+  tape(c,22,70,86,H-140,S.speed,10,'km/h',true);
+  // right tape: trip km
+  tape(c,W-108,70,86,H-140,S.dist*10,10,'TRIP',false,v=>(v/10).toFixed(1));
+  // heading tape top
+  c.fillStyle='#000a';c.fillRect(cx-210,8,420,40);c.strokeStyle='#e8fff1';c.lineWidth=1.5;c.strokeRect(cx-210,8,420,40);
+  c.save();c.beginPath();c.rect(cx-210,8,420,40);c.clip();
+  for(let d=-60;d<=60;d+=5){const hd=(Math.round(S.heading/5)*5+d+360)%360,x=cx+(hd-S.heading+ (Math.abs(hd-S.heading)>180?(hd<S.heading?360:-360):0))*3.4;
+    c.beginPath();c.moveTo(x,48);c.lineTo(x,hd%10?40:34);c.stroke();if(hd%30===0){c.fillText(hd===0?'N':hd===90?'E':hd===180?'S':hd===270?'W':String(hd/10).padStart(2,'0'),x,30)}}
+  c.restore();
+  c.fillStyle='#7dffb0';c.beginPath();c.moveTo(cx-8,54);c.lineTo(cx+8,54);c.lineTo(cx,46);c.fill();
+  c.font='600 15px "IBM Plex Mono",monospace';c.fillText(String(Math.round(S.heading)).padStart(3,'0')+'°',cx,72);
+  // haz overlay
+  if(haz&&Math.floor(performance.now()/450)%2){c.fillStyle='#f2b54422';c.fillRect(0,0,W,H);c.fillStyle='#f2b544';c.font='700 26px "Barlow Condensed",sans-serif';c.fillText('▲ HAZARD',cx,H-22)}
+}
+function tape(c,x,y,w,h,val,step,label,left,fmt=v=>String(Math.round(v))){
+  c.fillStyle='#000a';c.fillRect(x,y,w,h);c.strokeStyle='#e8fff1';c.lineWidth=1.5;c.strokeRect(x,y,w,h);
+  c.save();c.beginPath();c.rect(x,y,w,h);c.clip();c.font='500 15px "IBM Plex Mono",monospace';c.fillStyle='#e8fff1';c.textAlign=left?'right':'left';
+  const mid=y+h/2,px=3.2;const base=Math.floor(val/step)*step;
+  for(let v=base-step*8;v<=base+step*8;v+=step){if(v<0)continue;const yy=mid-(v-val)*px;
+    c.beginPath();c.moveTo(left?x+w:x,yy);c.lineTo(left?x+w-10:x+10,yy);c.stroke();if(v%(step*2)===0)c.fillText(fmt(v),left?x+w-14:x+14,yy+5)}
+  c.restore();
+  c.fillStyle='#071009';c.strokeStyle='#7dffb0';c.fillRect(x-4,mid-18,w+8,36);c.strokeRect(x-4,mid-18,w+8,36);
+  c.fillStyle='#7dffb0';c.font='600 22px "IBM Plex Mono",monospace';c.textAlign='center';c.fillText(fmt(val),x+w/2,mid+8);
+  c.fillStyle='#e8fff1';c.font='600 13px "Barlow Condensed",sans-serif';c.fillText(label,x+w/2,y-8)}
+
+/* speed gauge */
+const gc=$('#gauge').getContext('2d');
+function drawGauge(){const c=gc,W=960,H=492,cx=W/2,cy=H*0.9,R=H*0.78;c.clearRect(0,0,W,H);
+  c.lineWidth=18;c.strokeStyle='#1d2a26';c.beginPath();c.arc(cx,cy,R,Math.PI,2*Math.PI);c.stroke();
+  const f=Math.min(S.speed/160,1);c.strokeStyle=S.speed>110?'#ff5a3c':'#7dffb0';c.beginPath();c.arc(cx,cy,R,Math.PI,Math.PI+Math.PI*f);c.stroke();
+  c.strokeStyle='#d9e2d6';c.fillStyle='#d9e2d6';c.lineWidth=2;c.font='600 22px "IBM Plex Mono",monospace';c.textAlign='center';
+  for(let v=0;v<=160;v+=10){const a=Math.PI+Math.PI*v/160,r1=R-24,r2=v%20?R-36:R-48;
+    c.beginPath();c.moveTo(cx+Math.cos(a)*r1,cy+Math.sin(a)*r1);c.lineTo(cx+Math.cos(a)*r2,cy+Math.sin(a)*r2);c.stroke();
+    if(v%20===0)c.fillText(v,cx+Math.cos(a)*(R-76),cy+Math.sin(a)*(R-76)+8)}
+  const a=Math.PI+Math.PI*f;c.strokeStyle='#f2b544';c.lineWidth=6;c.beginPath();c.moveTo(cx,cy);c.lineTo(cx+Math.cos(a)*(R-30),cy+Math.sin(a)*(R-30));c.stroke();
+  c.fillStyle='#b99a5b';c.beginPath();c.arc(cx,cy,16,0,7);c.fill();
+  c.fillStyle='#7dffb0';c.font='600 76px "IBM Plex Mono",monospace';c.fillText(Math.round(S.speed),cx,cy-110);
+  c.fillStyle='#7f948b';c.font='600 20px "Barlow Condensed",sans-serif';c.fillText('KM/H',cx,cy-78)}
+
+/* compass */
+const cc=$('#compass').getContext('2d');
+function drawCompass(){const c=cc,W=960,H=492,cx=W/2,cy=H/2,R=H*0.42;c.clearRect(0,0,W,H);
+  let g=c.createRadialGradient(cx-40,cy-40,10,cx,cy,R);g.addColorStop(0,'#2a3430');g.addColorStop(1,'#0e1412');
+  c.fillStyle=g;c.beginPath();c.arc(cx,cy,R,0,7);c.fill();c.lineWidth=8;c.strokeStyle='#b99a5b';c.stroke();
+  c.save();c.translate(cx,cy);c.rotate(-S.heading*Math.PI/180);
+  c.fillStyle='#d9e2d6';c.strokeStyle='#d9e2d6';c.textAlign='center';c.font='700 30px "Barlow Condensed",sans-serif';
+  for(let d=0;d<360;d+=10){c.save();c.rotate(d*Math.PI/180);c.lineWidth=d%30?1:2.5;c.beginPath();c.moveTo(0,-R+10);c.lineTo(0,-R+(d%30?20:30));c.stroke();
+    const L={0:'N',90:'E',180:'S',270:'W'}[d];if(L){c.fillStyle=L==='N'?'#ff5a3c':'#d9e2d6';c.fillText(L,0,-R+62)}c.restore()}
+  // rose
+  for(let i=0;i<8;i++){c.save();c.rotate(i*Math.PI/4);c.fillStyle=i%2?'#7a6a42':'#b99a5b';c.beginPath();c.moveTo(0,-(i%2?R*0.42:R*0.6));c.lineTo(10,0);c.lineTo(-10,0);c.fill();c.restore()}
+  c.restore();
+  c.fillStyle='#f2b544';c.beginPath();c.moveTo(cx,cy-R-6);c.lineTo(cx-10,cy-R+14);c.lineTo(cx+10,cy-R+14);c.fill();
+  const dirs=['북','북동','동','남동','남','남서','서','북서'];
+  c.fillStyle='#071009';c.fillRect(cx-90,cy+R*0.55,180,40);c.strokeStyle='#3e7a58';c.lineWidth=1.5;c.strokeRect(cx-90,cy+R*0.55,180,40);
+  c.fillStyle='#7dffb0';c.font='600 24px "IBM Plex Mono",monospace';c.fillText(`${Math.round(S.heading)}° ${dirs[Math.round(S.heading/45)%8]}`,cx,cy+R*0.55+29)}
+
+/* ---------- audio ---------- */
+let actx,src,gain,pan,analyser,filters=[];const audio=new Audio();audio.preload='metadata';
+const BANDS=[31,62,125,250,500,1000,2000,4000,8000,16000];
+let eqVals=store.get('eq',BANDS.map(()=>0));
+function ensureAudio(){if(actx)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;actx=new AC();
+  src=actx.createMediaElementSource(audio);let node=src;
+  filters=BANDS.map((f,i)=>{const b=actx.createBiquadFilter();b.type=i===0?'lowshelf':i===BANDS.length-1?'highshelf':'peaking';b.frequency.value=f;b.Q.value=1.1;b.gain.value=eqVals[i];node.connect(b);node=b;return b});
+  pan=actx.createStereoPanner?actx.createStereoPanner():null;gain=actx.createGain();analyser=actx.createAnalyser();analyser.fftSize=256;
+  if(pan){node.connect(pan);node=pan}node.connect(gain);gain.connect(analyser);analyser.connect(actx.destination);applyVol();applyBal()}
+let tracks=[],cur=-1,shuffle=false;
+$('#loadBtn').onclick=()=>$('#fileIn').click();
+$('#fileIn').onchange=e=>{const fs=[...e.target.files];if(!fs.length)return;fs.forEach(f=>tracks.push({name:f.name.replace(/\.[^.]+$/,''),url:URL.createObjectURL(f)}));renderList();if(cur<0)load(0,true);e.target.value=''};
+function renderList(){$('#plist').innerHTML='';tracks.forEach((t,i)=>{const d=document.createElement('div');d.textContent=`${String(i+1).padStart(2,'0')}  ${t.name}`;if(i===cur)d.className='cur';d.onclick=()=>load(i,true);$('#plist').append(d)})}
+function load(i,play){if(!tracks.length)return;cur=(i+tracks.length)%tracks.length;audio.src=tracks[cur].url;$('#ptitle').textContent=tracks[cur].name;$('#pinfo').textContent=`트랙 ${cur+1} / ${tracks.length}`;$('#cover').textContent=String(cur+1).padStart(2,'0');renderList();if(play)doPlay()}
+function doPlay(){if(!tracks.length){$('#loadBtn').click();return}ensureAudio();actx&&actx.resume();audio.play().then(()=>setState('PLAY')).catch(()=>setState('READY'))}
+function setState(s){$('#plState').textContent=s;$('#kPlay').classList.toggle('lit',s==='PLAY');$('#kPause').classList.toggle('lit',s==='PAUSE')}
+$('#kPlay').onclick=doPlay;$('#kPause').onclick=()=>{audio.pause();setState('PAUSE')};
+$('#kStop').onclick=()=>{audio.pause();audio.currentTime=0;setState('STOP')};
+const next=()=>load(shuffle?Math.floor(Math.random()*tracks.length):cur+1,true);
+$('#kNext').onclick=next;$('#kPrev').onclick=()=>{if(audio.currentTime>3)audio.currentTime=0;else load(cur-1,true)};
+audio.onended=next;
+$('#shufBtn').onclick=e=>{shuffle=!shuffle;e.currentTarget.textContent=shuffle?'셔플 ON':'셔플 OFF';e.currentTarget.setAttribute('aria-pressed',shuffle)};
+const fmt=t=>isFinite(t)?String(Math.floor(t/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(2,'0'):'00:00';
+audio.ontimeupdate=()=>{$('#ptime').textContent=fmt(audio.currentTime);if(audio.duration&&!seeking)$('#seek').value=audio.currentTime/audio.duration*1000};
+let seeking=false;$('#seek').oninput=e=>{seeking=true;if(audio.duration)audio.currentTime=e.target.value/1000*audio.duration};$('#seek').onchange=()=>seeking=false;
+function applyVol(){const v=+$('#vol').value;$('#volV').textContent=v;if(gain)gain.gain.value=(v/100)**1.6;else audio.volume=v/100}
+function applyBal(){const b=+$('#bal').value;$('#balV').textContent=b===0?'C':(b<0?'L':'R')+Math.abs(b);if(pan)pan.pan.value=b/100}
+$('#vol').value=store.get('vol',70);$('#vol').oninput=()=>{applyVol();store.set('vol',+$('#vol').value)};$('#bal').oninput=applyBal;applyVol();applyBal();
+
+/* spectrum */
+const sp=$('#spec'),spc=sp.getContext('2d');let fake=0;
+function drawSpec(){const c=spc,W=sp.width,H=sp.height;c.clearRect(0,0,W,H);const n=40;let data=null;
+  if(analyser&&!audio.paused){data=new Uint8Array(analyser.frequencyBinCount);analyser.getByteFrequencyData(data)}
+  fake+=0.05;const bw=W/n;
+  for(let i=0;i<n;i++){let v=data?data[Math.floor(i*data.length/n*0.8)]/255:(0.06+0.04*Math.sin(fake+i*0.6));
+    const h=Math.max(2,v*H);c.fillStyle=v>0.8?'#f2b544':'#7dffb0';c.globalAlpha=0.85;c.fillRect(i*bw+2,H-h,bw-4,h)}
+  c.globalAlpha=1}
+
+/* ---------- EQ ---------- */
+const eqEl=$('#eq');
+BANDS.forEach((f,i)=>{const b=document.createElement('div');b.className='band';
+  b.innerHTML=`<input type="range" min="-12" max="12" step="1" value="${eqVals[i]}" aria-label="${f}Hz" id="eq${i}"><span>${f>=1000?f/1000+'k':f}</span>`;
+  b.querySelector('input').oninput=e=>{eqVals[i]=+e.target.value;if(filters[i])filters[i].gain.value=eqVals[i];store.set('eq',eqVals)};eqEl.append(b)});
+const PRE={flat:[0,0,0,0,0,0,0,0,0,0],bass:[7,6,4,2,0,-1,0,1,2,2],vocal:[-2,-1,0,2,4,5,4,2,0,-1],road:[5,4,2,0,-1,0,2,4,5,4]};
+$$('[data-eq]').forEach(btn=>btn.onclick=()=>{eqVals=PRE[btn.dataset.eq].slice();eqVals.forEach((v,i)=>{$('#eq'+i).value=v;if(filters[i])filters[i].gain.value=v});store.set('eq',eqVals)});
+
+/* ---------- radio (tuner display) ---------- */
+let freq=store.get('freq',95.9);
+const DEF_PRESETS=[89.1,91.9,93.1,95.9,103.5,107.7];
+let presets=store.get('presets',DEF_PRESETS);
+function setFreq(f){freq=Math.round(Math.min(108,Math.max(88,f))*10)/10;$('#freq').textContent=freq.toFixed(1);$('#knob').setAttribute('aria-valuenow',freq);
+  $('#knob i').style.transform=`rotate(${(freq-88)/20*300-150}deg)`;const pi=presets.indexOf(freq);$('#stName').textContent=pi>=0?`PRESET ${pi+1}`:'TUNING';store.set('freq',freq);drawDial();
+  $$('#presets .key').forEach((k,i)=>k.classList.toggle('lit',presets[i]===freq))}
+const dial=$('#dial'),dc=dial.getContext('2d');
+function drawDial(){const c=dc,W=dial.width,H=dial.height;let g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#e9cf8f');g.addColorStop(1,'#c9a35a');c.fillStyle=g;c.fillRect(0,0,W,H);
+  c.strokeStyle='#3b2c10';c.fillStyle='#3b2c10';c.textAlign='center';c.font='600 18px "IBM Plex Mono",monospace';
+  for(let f=88;f<=108;f+=0.5){const x=20+(f-88)/20*(W-40);c.lineWidth=f%2?1:2;c.beginPath();c.moveTo(x,H-10);c.lineTo(x,H-(f%2===0?34:22));c.stroke();if(f%4===0)c.fillText(f,x,26)}
+  const x=20+(freq-88)/20*(W-40);c.strokeStyle='#d0261a';c.lineWidth=3;c.beginPath();c.moveTo(x,6);c.lineTo(x,H-4);c.stroke()}
+const pe=$('#presets');
+presets.forEach((p,i)=>{const k=document.createElement('button');k.className='key';k.innerHTML=`${i+1}<small>${p.toFixed(1)}</small>`;let t,held=false;
+  const down=()=>{held=false;t=setTimeout(()=>{held=true;presets[i]=freq;store.set('presets',presets);k.querySelector('small').textContent=freq.toFixed(1);k.classList.add('lit')},1000)};
+  k.addEventListener('pointerdown',down);k.addEventListener('pointerup',()=>{clearTimeout(t);if(!held)setFreq(presets[i])});k.addEventListener('pointerleave',()=>clearTimeout(t));
+  k.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setFreq(presets[i])}});pe.append(k)});
+knobDrag($('#knob'),d=>setFreq(freq+d*0.1),k=>{if(k==='ArrowUp'||k==='ArrowRight')setFreq(freq+0.1);if(k==='ArrowDown'||k==='ArrowLeft')setFreq(freq-0.1)});
+setFreq(freq);
+function knobDrag(el,onStep,onKey){let last=null,acc=0;
+  el.addEventListener('pointerdown',e=>{el.setPointerCapture(e.pointerId);last=e.clientY-e.clientX});
+  el.addEventListener('pointermove',e=>{if(last==null)return;const v=e.clientY-e.clientX;acc+=last-v;last=v;while(Math.abs(acc)>=6){onStep(Math.sign(acc));acc-=6*Math.sign(acc)}});
+  el.addEventListener('pointerup',()=>last=null);el.addEventListener('pointercancel',()=>last=null);
+  el.addEventListener('wheel',e=>{e.preventDefault();onStep(e.deltaY<0?1:-1)},{passive:false});
+  el.addEventListener('keydown',e=>{if(e.key.startsWith('Arrow')){e.preventDefault();onKey(e.key)}})}
+
+/* ---------- cockpit control ---------- */
+let dim=store.get('dim',100);
+function setDim(v){dim=Math.min(100,Math.max(20,v));document.documentElement.style.setProperty('--dimmer',((100-dim)/100*0.8).toFixed(2));
+  $('#dimV').textContent=dim+'%';$('#dimKnob i').style.transform=`rotate(${(dim-20)/80*300-150}deg)`;$('#dimKnob').setAttribute('aria-valuenow',dim);store.set('dim',dim)}
+knobDrag($('#dimKnob'),d=>setDim(dim+d*2),k=>setDim(dim+((k==='ArrowUp'||k==='ArrowRight')?5:-5)));setDim(dim);
+function toggle(id,fn){const el=$(id);el.onclick=()=>{const on=el.getAttribute('aria-pressed')!=='true';el.setAttribute('aria-pressed',on);fn(on,el)}}
+toggle('#tNight',on=>{document.documentElement.dataset.night=on?'1':'0';$('#lNight').classList.toggle('on',on);const p=$('#pillNight');p.textContent=on?'NIGHT':'DAY';p.classList.toggle('on',on);store.set('night',on)});
+if(store.get('night',false))$('#tNight').click();
+let haz=false,beepT=null;
+toggle('#tHaz',on=>{haz=on;$('#pillHaz').hidden=!on;$('#pillHaz').classList.toggle('warn',on);$('#lHaz').classList.toggle('amb',on);
+  clearInterval(beepT);if(on){beep();beepT=setInterval(beep,900)}});
+function beep(){try{ensureAudio();if(!actx)return;actx.resume();const o=actx.createOscillator(),g=actx.createGain();o.type='square';o.frequency.value=880;g.gain.setValueAtTime(0.0001,actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.06,actx.currentTime+0.01);g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+0.12);o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+0.14)}catch{}}
+let wake=null;
+toggle('#tWake',async(on,el)=>{if(on){try{wake=await navigator.wakeLock.request('screen');$('#sWake').textContent='ON';wake.addEventListener('release',()=>{$('#sWake').textContent='OFF';el.setAttribute('aria-pressed','false')})}catch{$('#sWake').textContent='미지원';el.setAttribute('aria-pressed','false')}}
+  else{wake&&wake.release();wake=null;$('#sWake').textContent='OFF'}});
+toggle('#tFull',async(on,el)=>{try{if(on)await document.documentElement.requestFullscreen();else await document.exitFullscreen();$('#sFull').textContent=on?'ON':'OFF'}catch{$('#sFull').textContent='미지원';el.setAttribute('aria-pressed','false')}});
+document.addEventListener('fullscreenchange',()=>{const on=!!document.fullscreenElement;$('#tFull').setAttribute('aria-pressed',on);$('#sFull').textContent=on?'ON':'OFF'});
+
+/* ---------- navigation links ---------- */
+function upd(){const q=encodeURIComponent($('#dest').value.trim());$('#goKakao').href=q?`https://map.kakao.com/link/search/${q}`:'https://map.kakao.com/';$('#goNaver').href=q?`https://map.naver.com/p/search/${q}`:'https://map.naver.com/'}
+$('#dest').oninput=upd;$('#navForm').onsubmit=e=>{e.preventDefault();upd()};
+
+/* ---------- main loop ---------- */
+let lastT=performance.now(),lastHud=0;
+function frame(now){const dt=Math.min(0.1,(now-lastT)/1000);lastT=now;
+  const tgt=S.gps?(S.gpsSpeed||0):S.sim?S.target:0;S.speed+=(tgt-S.speed)*Math.min(1,dt*(S.gps?2.5:0.6));if(S.speed<0.2&&!S.sim&&!S.gps)S.speed=0;
+  if(S.sim)S.heading=(S.heading+Math.sin(now/7000)*dt*6+360)%360;
+  if(S.gps&&S.gpsHeading!=null){let d=((S.gpsHeading-S.heading+540)%360)-180;S.heading=(S.heading+d*Math.min(1,dt*2)+360)%360}
+  if(!S.gps)S.dist+=S.speed*dt/3600;if(S.speed>1)S.time+=dt;S.road+=S.speed*dt*0.9;
+  const vis=v=>$('#v-'+v).classList.contains('on');
+  if(vis('hud'))drawHUD();if(vis('gauge'))drawGauge();if(vis('compass'))drawCompass();
+  if(vis('trip')&&now-lastHud>250){$('#tripKm').textContent=S.dist.toFixed(1);$('#tripT').textContent=fmt(S.time);$('#tripAvg').textContent=S.time>1?Math.round(S.dist/(S.time/3600)):0}
+  if(now-lastHud>250){lastHud=now;$('#hudInfo').textContent=`HDG ${String(Math.round(S.heading)).padStart(3,'0')}° · ${Math.round(S.speed)} km/h`}
+  drawSpec();if(!reduce)requestAnimationFrame(frame)}
+if(reduce){drawHUD();drawGauge();drawCompass();drawSpec();setInterval(()=>frame(performance.now()),500)}else requestAnimationFrame(frame);
+})();
+</script>
+<script>
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+</body>
+</html>
