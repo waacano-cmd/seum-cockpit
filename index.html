@@ -90,8 +90,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 #map{background:#0b100e}
 #camVideo{object-fit:cover;background:#000}
 .camOverlay{position:absolute;left:8px;top:8px;right:8px;display:flex;justify-content:space-between;font:600 14px var(--f-data);color:#fff;text-shadow:0 0 4px #000;pointer-events:none;inset:auto 8px auto 8px}
-.camMsg{display:grid;place-items:center;text-align:center;color:var(--dim);font-size:13px;padding:20px}
-.tripv{display:grid;grid-template-columns:repeat(3,1fr);align-content:center;text-align:center;gap:8px;background:#071009}
+.camMsg{display:grid;place-items:center;text-align:center;color:var(--dim);font-size:13px;padding:20px;position:absolute;inset:0}
+.tripv{grid-template-columns:repeat(3,1fr);align-content:center;text-align:center;gap:8px;background:#071009}
+.view.tripv.on{display:grid}
 .tripv b{display:block;font:600 34px var(--f-data);color:var(--phos)}
 .modes{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:7px}
 @media (max-width:520px){.modes{grid-template-columns:repeat(3,1fr)}}
@@ -362,6 +363,7 @@ input[type=range]{accent-color:var(--brass);min-width:0}
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
@@ -606,16 +608,27 @@ async function loadStations(){for(const h of FALLBACK_HOSTS){try{const r=await f
     if(!r.ok)continue;const j=await r.json();const seen=new Set();stations=j.filter(s=>(s.url_resolved||'').startsWith('https://')).filter(s=>{const k=s.name.trim().toLowerCase();if(seen.has(k))return false;seen.add(k);return true})
       .slice(0,60).map(s=>({id:s.stationuuid,name:s.name.trim().replace(/\s+/g,' '),url:s.url_resolved,tags:s.tags||'',bitrate:s.bitrate}));if(stations.length)break}catch{}}
   if(!stations.length){$('#stName').textContent='방송 목록을 불러오지 못했습니다 (인터넷 확인)';return}
+  stations.sort((a,b)=>(bad.has(a.id)?1:0)-(bad.has(b.id)?1:0));
   const last=store.get('station',null);const li=stations.findIndex(s=>s.id===last);sti=li>=0?li:0;renderStations();showStation();renderPresets()}
-function renderStations(){const l=$('#stList');l.innerHTML='';stations.forEach((s,i)=>{const d=document.createElement('div');d.textContent=`CH ${chOf(i)}  ${s.name}`;if(i===sti)d.className='cur';d.onclick=()=>{tune(i);radioPlay()};l.append(d)})}
-function showStation(){const s=stations[sti];if(!s)return;$('#freq').textContent=chOf(sti);$('#stName').textContent=s.name+(s.bitrate?` · ${s.bitrate}k`:'');$('#knob i').style.transform=`rotate(${sti/Math.max(1,stations.length-1)*300-150}deg)`;
+function renderStations(){const l=$('#stList');l.innerHTML='';stations.forEach((s,i)=>{const d=document.createElement('div');d.textContent=`CH ${chOf(i)}  ${s.name}${bad.has(s.id)?'  ✕ 웹 재생 불가':''}`;if(bad.has(s.id))d.style.opacity='.45';if(i===sti)d.className='cur';d.onclick=()=>{tune(i);radioPlay()};l.append(d)})}
+function showStation(){const s=stations[sti];if(!s)return;$('#freq').textContent=chOf(sti);$('#stName').textContent=s.name+(bad.has(s.id)?' · 웹 재생 불가':s.bitrate?` · ${s.bitrate}k`:'');$('#knob i').style.transform=`rotate(${sti/Math.max(1,stations.length-1)*300-150}deg)`;
   $$('#stList div').forEach((d,i)=>d.classList.toggle('cur',i===sti));$$('#presets .key').forEach((k,i)=>k.classList.toggle('lit',presets[i]&&presets[i].id===s.id));drawDial()}
 let tuneT;function tune(i){if(!stations.length)return;sti=(i+stations.length)%stations.length;showStation();store.set('station',stations[sti].id);if(radioOn){clearTimeout(tuneT);tuneT=setTimeout(radioPlay,450)}}
-function radioPlay(){const s=stations[sti];if(!s)return;audio.pause();setPl('PAUSE');radio.src=s.url;radio.volume=$('#rVol').value/100;$('#rdState').textContent='연결 중…';
-  radio.play().then(()=>{radioOn=true;$('#rdState').textContent='ON AIR';$('#rPlay').classList.add('lit')}).catch(()=>{$('#rdState').textContent='재생 실패 · 다른 방송 선택';$('#rPlay').classList.remove('lit')})}
-function radioStop(){radio.pause();radio.removeAttribute('src');radio.load();radioOn=false;$('#rdState').textContent='OFF';$('#rPlay').classList.remove('lit')}
-radio.onerror=()=>{if(radioOn||$('#rdState').textContent==='연결 중…'){$('#rdState').textContent='신호 없음 · 다른 방송 선택';radioOn=false;$('#rPlay').classList.remove('lit')}};
-radio.onwaiting=()=>{if(radioOn)$('#rdState').textContent='버퍼링…'};radio.onplaying=()=>{$('#rdState').textContent='ON AIR'};
+let hls=null,radioTry=0,bad=new Set(store.get('badSt',[]));
+function killHls(){if(hls){try{hls.destroy()}catch{}hls=null}}
+function radioOk(){radioOn=true;$('#rdState').textContent='ON AIR';$('#rPlay').classList.add('lit')}
+function radioFail(s){radioOn=false;$('#rPlay').classList.remove('lit');bad.add(s.id);store.set('badSt',[...bad]);renderStations();showStation();
+  $('#rdState').textContent='재생 불가';toast(`'${s.name}'은(는) 방송사가 웹 재생을 막아두었습니다. 다른 방송을 선택하세요.`)}
+async function radioPlay(){const s=stations[sti];if(!s)return;const my=++radioTry;audio.pause();setPl('PAUSE');killHls();radio.volume=$('#rVol').value/100;$('#rdState').textContent='연결 중…';
+  radio.src=s.url;
+  try{await radio.play();if(my===radioTry)radioOk();return}catch(e){if(my!==radioTry)return}
+  if(/\.m3u8/i.test(s.url)&&window.Hls&&Hls.isSupported()){hls=new Hls({lowLatencyMode:false});let done=false;
+    hls.on(Hls.Events.MANIFEST_PARSED,()=>{radio.play().then(()=>{done=true;if(my===radioTry)radioOk()}).catch(()=>{if(my===radioTry)radioFail(s)})});
+    hls.on(Hls.Events.ERROR,(ev,d)=>{if(d.fatal&&!done&&my===radioTry){killHls();radioFail(s)}});
+    hls.loadSource(s.url);hls.attachMedia(radio);return}
+  radioFail(s)}
+function radioStop(){radioTry++;killHls();radio.pause();radio.removeAttribute('src');radio.load();radioOn=false;$('#rdState').textContent='OFF';$('#rPlay').classList.remove('lit')}
+radio.onwaiting=()=>{if(radioOn)$('#rdState').textContent='버퍼링…'};radio.onplaying=()=>{if(radioOn)$('#rdState').textContent='ON AIR'};
 $('#rPlay').onclick=radioPlay;$('#rStop').onclick=radioStop;$('#rPrev').onclick=()=>tune(sti-1);$('#rNext').onclick=()=>tune(sti+1);
 $('#rVol').value=store.get('rvol',70);$('#rVol').oninput=e=>{radio.volume=e.target.value/100;store.set('rvol',+e.target.value)};
 const dial=$('#dial'),dc=dial.getContext('2d');
