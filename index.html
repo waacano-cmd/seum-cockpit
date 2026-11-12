@@ -241,6 +241,15 @@ input[type=range]{accent-color:var(--brass);min-width:0}
       <div class="g" id="camCtl"><button class="btn" id="camBtn">카메라 켜기</button><button class="btn" id="recBtn" disabled>● 녹화</button><button class="btn" id="snapBtn" disabled>사진</button></div>
       <div class="g"><button class="btn" id="followBtn">지도 따라가기 ON</button><button class="btn" id="tripReset">트립 초기화</button></div>
     </div>
+    <p class="note">GPS 상태: <b id="gpsDiag" style="font-weight:600">OFF</b></p>
+    <details class="note"><summary style="cursor:pointer">GPS가 안 잡힐 때 확인하기</summary>
+      <ol style="margin:6px 0 0;padding-left:18px;line-height:1.6">
+        <li>태블릿 화면 위에서 아래로 쓸어내려 <b>빠른 설정의 [위치]</b>를 켭니다.</li>
+        <li>설정 → 애플리케이션 → <b>Chrome → 권한 → 위치 → '앱 사용 중에만 허용'</b>, 그리고 <b>'정확한 위치 사용'</b>을 켭니다.</li>
+        <li>Chrome에서 이 주소를 열고 주소창 왼쪽 아이콘 → 권한 → <b>위치 허용</b>.</li>
+        <li>건물 안에서는 위성 신호가 약합니다. <b>창가·차 안</b>에서 1분 정도 기다려 보세요.</li>
+        <li>Wi-Fi 전용 태블릿 중 일부는 GPS 칩이 없어 속도를 잴 수 없습니다. 이때는 휴대폰에서 이 앱을 열어 쓰세요.</li>
+      </ol></details>
   </div>
 </section>
 
@@ -295,7 +304,7 @@ input[type=range]{accent-color:var(--brass);min-width:0}
       <div class="row"><span class="lbl">VOL</span><input type="range" id="rVol" min="0" max="100" value="70" aria-label="라디오 음량"></div>
       <div class="presets" id="presets"></div>
       <details style="margin-top:8px"><summary class="lbl" style="cursor:pointer">STATION LIST · 방송국 목록</summary><div class="list" id="stList"></div></details>
-      <p class="note">프리셋: 짧게 누르면 듣기 · 1초 누르면 지금 방송 저장. 방송 목록은 공개 인터넷 라디오 목록(radio-browser)에서 가져옵니다.</p>
+      <p class="note">프리셋: 짧게 누르면 듣기 · 1초 누르면 지금 방송 저장. 인터넷으로 듣는 라디오라 데이터(약 1시간 60MB)가 사용됩니다. MBC는 방송사가 웹 청취를 막아 제외했습니다.</p>
     </div>
   </section>
 </div>
@@ -423,26 +432,41 @@ drawClock();drawWx();drawHdgMini();setInterval(drawClock,1000);loadWx();setInter
 let gpsId=null,gpsLast=null;
 function hav(a,b){const R=6371,r=Math.PI/180,dLa=(b.latitude-a.latitude)*r,dLo=(b.longitude-a.longitude)*r,x=Math.sin(dLa/2)**2+Math.cos(a.latitude*r)*Math.cos(b.latitude*r)*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
 function bearing(a,b){const r=Math.PI/180,y=Math.sin((b.longitude-a.longitude)*r)*Math.cos(b.latitude*r),x=Math.cos(a.latitude*r)*Math.sin(b.latitude*r)-Math.sin(a.latitude*r)*Math.cos(b.latitude*r)*Math.cos((b.longitude-a.longitude)*r);return(Math.atan2(y,x)/r+360)%360}
+let gpsFixes=0,gpsLastAt=0,gpsSpdHist=[];
+function gpsMsg(m,warn){$('#gpsState').textContent=m;$('#gpsDiag').textContent=m;$('#gpsDiag').style.color=warn?css('--warn'):''}
+async function gpsPerm(){try{const st=await navigator.permissions.query({name:'geolocation'});return st.state}catch{return 'unknown'}}
 function gpsSet(on){const t=$('#gpsTog'),p=$('#pillGps');
-  if(on){if(!('geolocation' in navigator)){$('#gpsState').textContent='미지원';return}
-    if(S.sim)simSet(false);S.gps=true;t.setAttribute('aria-pressed','true');$('#gpsState').textContent='수신 대기';p.textContent='GPS …';let firstFix=true;
-    gpsId=navigator.geolocation.watchPosition(pos=>{const c=pos.coords,now=pos.timestamp;let v=c.speed;
-      if(gpsLast){const km=hav(gpsLast.c,c),dt=(now-gpsLast.t)/3600000;if(v==null&&dt>0)v=km/dt/3.6;
-        if(km>0.003&&(c.accuracy||99)<50){S.dist+=km;if(c.heading==null||isNaN(c.heading))S.gpsHeading=bearing(gpsLast.c,c)}}
-      if(c.heading!=null&&!isNaN(c.heading)&&(v||0)>1)S.gpsHeading=c.heading;
-      S.gpsSpeed=Math.max(0,(v||0)*3.6);S.alt=c.altitude;S.acc=c.accuracy;S.lat=c.latitude;S.lon=c.longitude;S.fix=true;gpsLast={c,t:now};
-      $('#gpsState').textContent='±'+Math.round(c.accuracy)+'m';p.textContent='GPS ON';p.classList.add('on');updMap();
+  if(on){if(!('geolocation' in navigator)){gpsMsg('이 기기는 위치 기능이 없습니다',true);return}
+    if(S.sim)simSet(false);S.gps=true;t.setAttribute('aria-pressed','true');p.textContent='GPS …';p.classList.remove('on');gpsMsg('위성 신호 찾는 중… (실외·차 안에서 10~60초)');
+    gpsPerm().then(st=>{if(st==='denied')gpsMsg('위치 권한이 꺼져 있습니다 → 아래 안내를 따라 허용해 주세요',true)});
+    let firstFix=true;
+    gpsId=navigator.geolocation.watchPosition(pos=>{const c=pos.coords,now=pos.timestamp||Date.now();gpsFixes++;gpsLastAt=Date.now();let v=(c.speed!=null&&!isNaN(c.speed))?c.speed*3.6:null;
+      if(gpsLast){const km=hav(gpsLast.c,c),dtH=(now-gpsLast.t)/3600000,good=(c.accuracy||99)<=60;
+        if(v==null&&dtH>0.25/3600){v=good?km/dtH:0}
+        if(good&&km>0.004&&km/Math.max(dtH,1e-6)<250){S.dist+=km;if(c.heading==null||isNaN(c.heading))S.gpsHeading=bearing(gpsLast.c,c)}}
+      if(c.heading!=null&&!isNaN(c.heading)&&(v||0)>3)S.gpsHeading=c.heading;
+      v=Math.max(0,v||0);if(v<2)v=0;if(v>250)v=S.gpsSpeed||0;gpsSpdHist=[...gpsSpdHist,v].slice(-3);S.gpsSpeed=gpsSpdHist.reduce((a,b)=>a+b,0)/gpsSpdHist.length;
+      S.alt=c.altitude;S.acc=c.accuracy;S.lat=c.latitude;S.lon=c.longitude;S.fix=true;gpsLast={c,t:now};
+      p.textContent='GPS ON';p.classList.add('on');gpsMsg(`수신 중 ±${Math.round(c.accuracy)}m · ${gpsFixes}회 · ${Math.round(v)}km/h${c.accuracy>100?' (정확도 낮음: 실외로)':''}`);updMap();
       if(firstFix){firstFix=false;loadWx()}},
-     err=>{$('#gpsState').textContent=err.code===1?'권한 거부':'신호 없음';p.textContent='GPS ERR';p.classList.remove('on')},
-     {enableHighAccuracy:true,maximumAge:1000,timeout:15000})}
-  else{if(gpsId!=null)navigator.geolocation.clearWatch(gpsId);gpsId=null;gpsLast=null;S.gps=false;S.gpsSpeed=0;
-    t.setAttribute('aria-pressed','false');$('#gpsState').textContent='OFF';p.textContent='GPS OFF';p.classList.remove('on')}
+     err=>{if(err.code===1){gpsMsg('위치 권한 거부됨 → 아래 안내를 따라 허용해 주세요',true);p.textContent='GPS 거부';p.classList.remove('on')}
+       else if(err.code===3){gpsMsg(S.fix?'신호 약함 · 계속 찾는 중…':'위성 신호 찾는 중… (실외·차 안에서 10~60초)')}
+       else gpsMsg('위치를 가져올 수 없음 · 태블릿 빠른설정에서 [위치]를 켜세요',true)},
+     {enableHighAccuracy:true,maximumAge:0,timeout:30000})}
+  else{if(gpsId!=null)navigator.geolocation.clearWatch(gpsId);gpsId=null;gpsLast=null;S.gps=false;S.gpsSpeed=0;gpsSpdHist=[];
+    t.setAttribute('aria-pressed','false');gpsMsg('OFF');p.textContent='GPS OFF';p.classList.remove('on')}
   store.set('gps',on)}
+setInterval(()=>{if(S.gps&&gpsLastAt&&Date.now()-gpsLastAt>8000){S.gpsSpeed=Math.max(0,(S.gpsSpeed||0)*.6)}},2000);
+/* compass sensor: heading when stopped */
+let sensorHdg=null;
+function onOri(e){let h=null;if(e.webkitCompassHeading!=null)h=e.webkitCompassHeading;else if(e.absolute&&e.alpha!=null)h=(360-e.alpha)%360;
+  if(h!=null){const ang=(screen.orientation&&screen.orientation.angle)||0;sensorHdg=(h+ang+360)%360}}
+addEventListener('deviceorientationabsolute',onOri);addEventListener('deviceorientation',e=>{if(e.absolute||e.webkitCompassHeading!=null)onOri(e)});
 $('#gpsTog').onclick=()=>gpsSet(!S.gps);
 function simSet(on){if(on&&S.gps)gpsSet(false);S.sim=on;$('#simTog').setAttribute('aria-pressed',on)}
 $('#simTog').onclick=()=>simSet(!S.sim);
 $('#simSpeed').oninput=e=>{S.target=+e.target.value;$('#simSpeedV').textContent=S.target};
-if(store.get('gps',false))gpsSet(true);
+if(store.get('gps',true))gpsSet(true);
 
 /* ---------- modes ---------- */
 let curView='hud';
@@ -603,30 +627,40 @@ $$('[data-eq]').forEach(btn=>btn.onclick=()=>{eqVals=PRE[btn.dataset.eq].slice()
 /* ---------- internet radio ---------- */
 const radio=new Audio();radio.preload='none';let stations=[],sti=0,radioOn=false;
 const FALLBACK_HOSTS=['https://de1.api.radio-browser.info','https://fi1.api.radio-browser.info','https://nl1.api.radio-browser.info','https://at1.api.radio-browser.info'];
-function chOf(i){return(88.1+i*(19.8/Math.max(1,stations.length-1))).toFixed(1)}
-async function loadStations(){for(const h of FALLBACK_HOSTS){try{const r=await fetch(`${h}/json/stations/search?countrycode=KR&hidebroken=true&order=clickcount&reverse=true&limit=150`,{headers:{'Accept':'application/json'}});
-    if(!r.ok)continue;const j=await r.json();const seen=new Set();stations=j.filter(s=>(s.url_resolved||'').startsWith('https://')).filter(s=>{const k=s.name.trim().toLowerCase();if(seen.has(k))return false;seen.add(k);return true})
-      .slice(0,60).map(s=>({id:s.stationuuid,name:s.name.trim().replace(/\s+/g,' '),url:s.url_resolved,tags:s.tags||'',bitrate:s.bitrate}));if(stations.length)break}catch{}}
+/* 서울 기준 FM 주파수 (이름 매칭) + 웹 재생이 막힌 방송 제외 */
+const KNOWN=[[/sbs\s*power/i,'SBS 파워FM',107.7],[/sbs\s*love/i,'SBS 러브FM',103.5],[/kbs\s*classic/i,'KBS 클래식FM',93.1],[/kbs\s*cool/i,'KBS 쿨FM',89.1],
+  [/cbs\s*음악/i,'CBS 음악FM',93.9],[/cbs\s*표준/i,'CBS 표준FM',98.1],[/ytn/i,'YTN 라디오',94.5],[/tbs\s*fm/i,'TBS FM',95.1],[/tbs\s*efm/i,'TBS eFM',101.3],
+  [/경인방송/,'경인방송 iFM',90.7],[/국방/,'국방FM',100.3],[/ebs/i,'EBS FM',104.5],[/gugak/i,'국악방송',99.1],[/obs/i,'OBS 라디오',null],[/cbs\s*joy/i,'CBS JOY4U',null],[/cbs\s*파워/i,'CBS 파워라디오',null]];
+const BLOCK=[/\bmbc\b/i,/kbs_kor/i,/kbs해피/i,/jtv/i,/cpbc/i,/안동mbc/i];
+function chOf(i){const s=stations[i];return s?(s.fm?s.fm.toFixed(1):'NET'):'--.-'}
+async function loadStations(){for(const h of FALLBACK_HOSTS){try{const r=await fetch(`${h}/json/stations/search?countrycode=KR&hidebroken=true&order=clickcount&reverse=true&limit=200`,{headers:{'Accept':'application/json'}});
+    if(!r.ok)continue;const j=await r.json();const seen=new Set();
+    stations=j.filter(s=>(s.url_resolved||'').startsWith('https://')).filter(s=>!BLOCK.some(b=>b.test(s.name))).map(s=>{const n=s.name.trim().replace(/\s+/g,' ');const k=KNOWN.find(([re])=>re.test(n));
+        return{id:s.stationuuid,name:k?k[1]:n,fm:k?k[2]:null,url:s.url_resolved,hls:/\.m3u8/i.test(s.url_resolved),bitrate:s.bitrate,known:!!k}})
+      .filter(s=>{const key=s.name.toLowerCase();if(seen.has(key))return false;seen.add(key);return true}).slice(0,45);if(stations.length)break}catch{}}
   if(!stations.length){$('#stName').textContent='방송 목록을 불러오지 못했습니다 (인터넷 확인)';return}
-  stations.sort((a,b)=>(bad.has(a.id)?1:0)-(bad.has(b.id)?1:0));
+  stations.sort((a,b)=>(bad.has(a.id)?1:0)-(bad.has(b.id)?1:0)||(a.fm?0:1)-(b.fm?0:1)||(a.fm||0)-(b.fm||0)||(b.known?1:0)-(a.known?1:0));
   const last=store.get('station',null);const li=stations.findIndex(s=>s.id===last);sti=li>=0?li:0;renderStations();showStation();renderPresets()}
-function renderStations(){const l=$('#stList');l.innerHTML='';stations.forEach((s,i)=>{const d=document.createElement('div');d.textContent=`CH ${chOf(i)}  ${s.name}${bad.has(s.id)?'  ✕ 웹 재생 불가':''}`;if(bad.has(s.id))d.style.opacity='.45';if(i===sti)d.className='cur';d.onclick=()=>{tune(i);radioPlay()};l.append(d)})}
-function showStation(){const s=stations[sti];if(!s)return;$('#freq').textContent=chOf(sti);$('#stName').textContent=s.name+(bad.has(s.id)?' · 웹 재생 불가':s.bitrate?` · ${s.bitrate}k`:'');$('#knob i').style.transform=`rotate(${sti/Math.max(1,stations.length-1)*300-150}deg)`;
+function renderStations(){const l=$('#stList');l.innerHTML='';stations.forEach((s,i)=>{const d=document.createElement('div');d.textContent=`${s.fm?'FM '+s.fm.toFixed(1):'NET  '}  ${s.name}${bad.has(s.id)?'  ✕ 수신 실패':''}`;if(bad.has(s.id))d.style.opacity='.45';if(i===sti)d.className='cur';d.onclick=()=>{tune(i);radioPlay()};l.append(d)})}
+function showStation(){const s=stations[sti];if(!s)return;$('#freq').textContent=chOf(sti);$('#freq').previousElementSibling.textContent=stations[sti]&&stations[sti].fm?'FM · MHz (서울 기준)':'INTERNET RADIO';$('#stName').textContent=s.name+(bad.has(s.id)?' · 지난번 수신 실패':s.bitrate?` · ${s.bitrate}k`:'');$('#knob i').style.transform=`rotate(${sti/Math.max(1,stations.length-1)*300-150}deg)`;
   $$('#stList div').forEach((d,i)=>d.classList.toggle('cur',i===sti));$$('#presets .key').forEach((k,i)=>k.classList.toggle('lit',presets[i]&&presets[i].id===s.id));drawDial()}
 let tuneT;function tune(i){if(!stations.length)return;sti=(i+stations.length)%stations.length;showStation();store.set('station',stations[sti].id);if(radioOn){clearTimeout(tuneT);tuneT=setTimeout(radioPlay,450)}}
-let hls=null,radioTry=0,bad=new Set(store.get('badSt',[]));
+let hls=null,radioTry=0,bad=new Set(store.get('badSt2',[]));
 function killHls(){if(hls){try{hls.destroy()}catch{}hls=null}}
 function radioOk(){radioOn=true;$('#rdState').textContent='ON AIR';$('#rPlay').classList.add('lit')}
-function radioFail(s){radioOn=false;$('#rPlay').classList.remove('lit');bad.add(s.id);store.set('badSt',[...bad]);renderStations();showStation();
-  $('#rdState').textContent='재생 불가';toast(`'${s.name}'은(는) 방송사가 웹 재생을 막아두었습니다. 다른 방송을 선택하세요.`)}
-async function radioPlay(){const s=stations[sti];if(!s)return;const my=++radioTry;audio.pause();setPl('PAUSE');killHls();radio.volume=$('#rVol').value/100;$('#rdState').textContent='연결 중…';
-  radio.src=s.url;
-  try{await radio.play();if(my===radioTry)radioOk();return}catch(e){if(my!==radioTry)return}
-  if(/\.m3u8/i.test(s.url)&&window.Hls&&Hls.isSupported()){hls=new Hls({lowLatencyMode:false});let done=false;
-    hls.on(Hls.Events.MANIFEST_PARSED,()=>{radio.play().then(()=>{done=true;if(my===radioTry)radioOk()}).catch(()=>{if(my===radioTry)radioFail(s)})});
-    hls.on(Hls.Events.ERROR,(ev,d)=>{if(d.fatal&&!done&&my===radioTry){killHls();radioFail(s)}});
+function radioFail(s,why){radioOn=false;$('#rPlay').classList.remove('lit');bad.add(s.id);store.set('badSt2',[...bad]);renderStations();showStation();
+  $('#rdState').textContent='수신 실패';toast(`'${s.name}' 수신 실패${why?' ('+why+')':''} — 다음 방송을 눌러보세요`)}
+function withTimeout(p,ms){return Promise.race([p,new Promise((_,j)=>setTimeout(()=>j(new Error('timeout')),ms))])}
+async function radioPlay(){const s=stations[sti];if(!s)return;const my=++radioTry;audio.pause();setPl('PAUSE');killHls();radio.pause();radio.removeAttribute('src');radio.load();
+  radio.volume=$('#rVol').value/100;$('#rdState').textContent='주파수 맞추는 중…';
+  if(s.hls&&window.Hls&&Hls.isSupported()){ // HLS: hls.js 우선 (안드로이드 크롬 기본 재생기는 멈추는 경우가 있음)
+    hls=new Hls({lowLatencyMode:false,manifestLoadingMaxRetry:2,levelLoadingMaxRetry:2});let done=false;
+    const to=setTimeout(()=>{if(!done&&my===radioTry){killHls();radioFail(s,'응답 없음')}},12000);
+    hls.on(Hls.Events.MANIFEST_PARSED,()=>{withTimeout(radio.play(),8000).then(()=>{done=true;clearTimeout(to);if(my===radioTry)radioOk()}).catch(e=>{done=true;clearTimeout(to);if(my===radioTry){killHls();radioFail(s,e.message==='timeout'?'응답 없음':'재생 거부')}})});
+    hls.on(Hls.Events.ERROR,(ev,d)=>{if(d.fatal&&!done&&my===radioTry){done=true;clearTimeout(to);killHls();radioFail(s,'방송사 차단')}});
     hls.loadSource(s.url);hls.attachMedia(radio);return}
-  radioFail(s)}
+  radio.src=s.url;
+  try{await withTimeout(radio.play(),12000);if(my===radioTry)radioOk()}catch(e){if(my===radioTry){radio.pause();radio.removeAttribute('src');radio.load();radioFail(s,e.message==='timeout'?'응답 없음':'형식 미지원')}}}
 function radioStop(){radioTry++;killHls();radio.pause();radio.removeAttribute('src');radio.load();radioOn=false;$('#rdState').textContent='OFF';$('#rPlay').classList.remove('lit')}
 radio.onwaiting=()=>{if(radioOn)$('#rdState').textContent='버퍼링…'};radio.onplaying=()=>{if(radioOn)$('#rdState').textContent='ON AIR'};
 $('#rPlay').onclick=radioPlay;$('#rStop').onclick=radioStop;$('#rPrev').onclick=()=>tune(sti-1);$('#rNext').onclick=()=>tune(sti+1);
@@ -635,7 +669,7 @@ const dial=$('#dial'),dc=dial.getContext('2d');
 function drawDial(){const c=dc,W=dial.width,H=dial.height;let g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#e9cf8f');g.addColorStop(1,'#c9a35a');c.fillStyle=g;c.fillRect(0,0,W,H);
   c.strokeStyle='#3b2c10';c.fillStyle='#3b2c10';c.textAlign='center';c.font='600 18px "IBM Plex Mono",monospace';
   for(let f=88;f<=108;f+=.5){const x=20+(f-88)/20*(W-40);c.lineWidth=f%2?1:2;c.beginPath();c.moveTo(x,H-10);c.lineTo(x,H-(f%2===0?34:22));c.stroke();if(f%4===0)c.fillText(f,x,26)}
-  if(stations.length){const f=parseFloat(chOf(sti)),x=20+(f-88)/20*(W-40);c.strokeStyle='#d0261a';c.lineWidth=3;c.beginPath();c.moveTo(x,6);c.lineTo(x,H-4);c.stroke()}}
+  if(stations.length&&stations[sti]&&stations[sti].fm){const f=stations[sti].fm,x=20+(f-88)/20*(W-40);c.strokeStyle='#d0261a';c.lineWidth=3;c.beginPath();c.moveTo(x,6);c.lineTo(x,H-4);c.stroke()}}
 drawDial();
 let presets=store.get('rpresets',[null,null,null,null,null,null]);
 function renderPresets(){const pe=$('#presets');pe.innerHTML='';presets.forEach((p,i)=>{const k=document.createElement('button');k.className='key';k.innerHTML=`${i+1}<small>${p?p.name:'비어 있음'}</small>`;let t,held=false;
@@ -704,7 +738,7 @@ let lastT=performance.now(),slow=0;
 function frame(now){const dt=Math.min(.1,(now-lastT)/1000);lastT=now;
   const tgt=S.gps?(S.gpsSpeed||0):S.sim?S.target:0;S.speed+=(tgt-S.speed)*Math.min(1,dt*(S.gps?2.5:.6));if(S.speed<.2&&!S.sim&&!S.gps)S.speed=0;
   if(S.sim)S.heading=(S.heading+Math.sin(now/7000)*dt*6+360)%360;
-  if(S.gps&&S.gpsHeading!=null){const d=((S.gpsHeading-S.heading+540)%360)-180;S.heading=(S.heading+d*Math.min(1,dt*2)+360)%360}
+  {const tgtH=(S.speed>8&&S.gpsHeading!=null)?S.gpsHeading:(!S.sim&&sensorHdg!=null)?sensorHdg:(S.gps?S.gpsHeading:null);if(tgtH!=null){const d=((tgtH-S.heading+540)%360)-180;S.heading=(S.heading+d*Math.min(1,dt*3)+360)%360}}
   if(!S.gps)S.dist+=S.speed*dt/3600;if(S.speed>2)S.time+=dt;S.road+=S.speed*dt*.9;if(S.speed>S.max&&(S.gps||S.sim))S.max=S.speed;
   overLimit=limitOn&&S.speed>limit;document.body.classList.toggle('alert',overLimit);
   if(overLimit&&now-lastAlert>4000){lastAlert=now;beep(1320,.18);setTimeout(()=>beep(1320,.18),250);if(voiceOn)speak(`속도를 줄이세요. 현재 ${Math.round(S.speed)} 킬로미터`)}
