@@ -84,7 +84,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 /* primary display */
 .pd{position:relative;border-radius:4px;overflow:hidden;border:1px solid #000;background:#000;aspect-ratio:16/8.6}
 .pd>*{position:absolute;inset:0;width:100%;height:100%}
-.pd canvas{display:block}
+.pd canvas{display:block;width:100%;height:100%}
 .view{display:none}.view.on{display:block}
 .mirror{transform:scaleX(-1)}
 #map{background:#0b100e;width:100%;height:100%}
@@ -177,6 +177,64 @@ input[type=range]{accent-color:var(--brass);min-width:0}
 .app b{display:block;font-size:13px}.app small{color:var(--dim);font-size:11px}
 .toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#071009;border:1px solid var(--phos);color:var(--phos);padding:8px 14px;border-radius:4px;font:600 13px var(--f-ko);z-index:2100;box-shadow:0 4px 14px #000}
 .leaflet-container{background:#0b100e;font-family:var(--f-ko)}
+/* ---- v3 ---- */
+:root[data-skin="airforce"]{--bg:#0d1014;--panel:#1a1f25;--panel-2:#222932;--line:#36414d;--ink:#dfe5ea;--dim:#8794a1;--brass:#8e9aa6;--cream:#d8dde2;--cream-ink:#1d2228}
+.hbtns{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.hbtns .btn{padding:5px 8px;font-size:11px}
+.pill.phase{color:var(--amber);border-color:var(--amber)}
+.twr{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:stretch}
+.clr{border:2px solid var(--phos);border-radius:3px;background:#071009;color:var(--phos);font:700 clamp(16px,3.2vw,26px)/1 var(--f-label);letter-spacing:.22em;text-align:center;padding:10px 8px;text-shadow:0 0 10px var(--phos-glow);box-shadow:inset 0 0 18px var(--phos-glow)}
+.clr.amber{border-color:var(--amber);color:var(--amber);text-shadow:0 0 10px #f2b54466;box-shadow:inset 0 0 18px #f2b54433}
+.clr.red{border-color:var(--warn);color:var(--warn);animation:blink .7s steps(1) infinite}
+.twrbtn{display:flex;flex-direction:column;gap:5px}
+.twrbtn .btn{min-width:78px;padding:8px}
+.ticker{margin-top:7px;font:500 12.5px/1.55 var(--f-data);max-height:96px;overflow:auto}
+.ticker div{display:flex;gap:8px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ticker div:first-child{color:var(--phos)}
+.ticker b{color:var(--amber);font-weight:600;flex:none}
+.phases{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:7px}
+.phases span{font:600 9.5px var(--f-label);letter-spacing:.06em;text-align:center;padding:3px 0;border-radius:2px;background:#0b100e;border:1px solid var(--line);color:var(--dim)}
+.phases span.on{background:var(--phos);color:#0c1210;border-color:var(--phos)}
+.phases span.done{color:var(--phos);border-color:#3e7a58}
+.modes{grid-template-columns:repeat(7,1fr)}
+@media (max-width:620px){.modes{grid-template-columns:repeat(4,1fr)}}
+.rmapWrap{position:absolute!important;top:5%;left:50%;height:90%!important;width:auto!important;aspect-ratio:1;transform:translateX(-50%);border-radius:50%;overflow:hidden;box-shadow:0 0 0 6px var(--brass),0 0 0 10px #0b0e0c}
+#rmap{position:absolute;width:142%;height:142%;left:-21%;top:-21%;background:#0b100e}
+#rmapRing{position:absolute;inset:0;pointer-events:none}
+#v-rmap{background:#071009}
+.cover{position:relative}
+.sosbox{position:relative;width:62px;height:50px}
+.sosbtn{position:absolute;inset:6px 8px;border-radius:50%;border:3px solid #600;background:radial-gradient(circle at 40% 35%,#ff6a55,#b3170a 70%);color:#fff;font:700 13px var(--f-label);letter-spacing:.08em}
+.sosbtn:disabled{filter:grayscale(.6) brightness(.6)}
+.soslid{position:absolute;inset:0;border-radius:4px;border:2px solid #222;background:repeating-linear-gradient(135deg,#f2c230 0 8px,#141414 8px 16px);opacity:.92;transform-origin:50% 0;transition:transform .25s;font:700 10px var(--f-label);color:#fff;text-shadow:0 0 3px #000;letter-spacing:.08em}
+.soslid[aria-expanded="true"]{transform:perspective(200px) rotateX(-75deg)}
+.deck{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.deck .grp{grid-column:1/-1;font:600 10.5px var(--f-label);letter-spacing:.12em;color:var(--dim);margin-top:3px}
+.dk{aspect-ratio:1.25;border-radius:6px;border:1px solid #000;background:linear-gradient(180deg,#2a3330,#141b18);box-shadow:inset 0 1px 0 #ffffff14,0 3px 0 #000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--ink);padding:4px}
+.dk i{font-style:normal;font-size:20px;line-height:1;color:var(--phos)}
+.dk span{font:600 11px var(--f-ko)}
+.dk kbd{font:500 9px var(--f-data);color:var(--dim)}
+.dk:active{transform:translateY(2px);box-shadow:inset 0 1px 0 #ffffff14,0 1px 0 #000}
+.dk.on{box-shadow:inset 0 0 14px var(--phos-glow),0 3px 0 #000;border-color:var(--phos)}
+.logtbl{width:100%;border-collapse:collapse;font:500 12px var(--f-data);font-variant-numeric:tabular-nums}
+.logtbl th{font:600 10px var(--f-label);letter-spacing:.08em;color:var(--dim);text-align:right;padding:4px 5px;border-bottom:1px solid var(--line)}
+.logtbl td{text-align:right;padding:5px;border-bottom:1px solid #ffffff0a;color:var(--ink)}
+.logtbl th:first-child,.logtbl td:first-child{text-align:left}
+.tblwrap{overflow-x:auto;max-height:190px;overflow-y:auto}
+.fuelf{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:6px;margin-top:8px}
+@media (max-width:620px){.fuelf{grid-template-columns:1fr 1fr}}
+.fuelf input,.setg input,.setg select{min-width:0;background:#071009;border:1px solid var(--line);border-radius:3px;color:var(--ink);padding:8px;font:13px var(--f-ko);user-select:text;-webkit-user-select:text}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.stats div{background:#071009;border:1px solid #000;border-radius:3px;padding:6px}
+.stats b{display:block;font:600 18px var(--f-data);color:var(--phos)}
+.stats span{font:600 9.5px var(--f-label);letter-spacing:.1em;color:var(--dim)}
+dialog#setDlg{background:var(--panel-2);color:var(--ink);border:1px solid var(--brass);border-radius:6px;padding:14px;width:min(520px,92vw);max-height:86vh;overflow:auto}
+dialog#setDlg::backdrop{background:#000a}
+.setg{display:grid;grid-template-columns:auto 1fr;gap:9px 12px;align-items:center;margin:10px 0}
+.setg label{font:600 12px var(--f-ko);color:var(--dim)}
+body.compact #m-player,body.compact #m-radio,body.compact #m-eq,body.compact #m-apps,body.compact #m-nav,body.compact #m-log,body.compact .dials{display:none!important}
+body.compact .grid2:has(#m-player),body.compact .grid2:has(#m-eq){display:none}
+.applinks{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -188,7 +246,8 @@ input[type=range]{accent-color:var(--brass);min-width:0}
   <div class="top">
     <div class="brand">
       <b>SEUM ONE</b><span>VEHICLE COCKPIT · 세움이엔씨</span>
-      <div class="pills"><span class="pill" id="pillGps">GPS OFF</span><span class="pill" id="pillRec" hidden>● REC</span><span class="pill" id="pillHaz" hidden>HAZARD</span><span class="pill" id="pillNight">DAY</span></div>
+      <div class="pills"><span class="pill" id="pillGps">GPS OFF</span><span class="pill" id="pillRec" hidden>● REC</span><span class="pill" id="pillHaz" hidden>HAZARD</span><span class="pill" id="pillNight">DAY</span><span class="pill phase" id="pillPhase">PARKED</span></div>
+      <div class="hbtns"><button class="btn" id="btnCompact">간편 모드</button><button class="btn" id="btnSettings">설정</button><button class="btn" id="btnDemo">▶ 시연</button><button class="btn" id="btnSkin">에어라인</button></div>
     </div>
     <div class="dials">
       <div class="dial"><canvas id="dClock" width="160" height="160"></canvas><span class="v" id="dClockV">--.-- (-)</span><span class="lbl">시계</span></div>
@@ -216,6 +275,7 @@ input[type=range]{accent-color:var(--brass);min-width:0}
       <div class="view" id="v-gauge"><canvas id="gauge" width="1000" height="538"></canvas></div>
       <div class="view" id="v-compass"><canvas id="compass" width="1000" height="538"></canvas></div>
       <div class="view" id="v-map"><div id="map"></div></div>
+      <div class="view" id="v-rmap"><div class="rmapWrap"><div id="rmap"></div></div><canvas id="rmapRing" width="1000" height="538"></canvas></div>
       <div class="view" id="v-cam">
         <video id="camVideo" playsinline muted></video>
         <div class="camMsg" id="camMsg">블랙박스 카메라가 꺼져 있습니다.<br>아래 [카메라 켜기]를 누르세요.</div>
@@ -232,6 +292,7 @@ input[type=range]{accent-color:var(--brass);min-width:0}
       <button class="mode" aria-pressed="false" data-v="gauge"><i>◔</i><span>SPEED</span></button>
       <button class="mode" aria-pressed="false" data-v="compass"><i>✣</i><span>COMPASS</span></button>
       <button class="mode" aria-pressed="false" data-v="map"><i>⌖</i><span>MAP</span></button>
+      <button class="mode" aria-pressed="false" data-v="rmap"><i>◎</i><span>원형지도</span></button>
       <button class="mode" aria-pressed="false" data-v="cam"><i>◉</i><span>DASHCAM</span></button>
       <button class="mode" aria-pressed="false" data-v="trip"><i>⏱</i><span>TRIP</span></button>
     </div>
@@ -250,6 +311,19 @@ input[type=range]{accent-color:var(--brass);min-width:0}
         <li>건물 안에서는 위성 신호가 약합니다. <b>창가·차 안</b>에서 1분 정도 기다려 보세요.</li>
         <li>Wi-Fi 전용 태블릿 중 일부는 GPS 칩이 없어 속도를 잴 수 없습니다. 이때는 휴대폰에서 이 앱을 열어 쓰세요.</li>
       </ol></details>
+  </div>
+</section>
+
+<!-- ===== tower ===== -->
+<section class="mod" id="m-twr">
+  <div class="mh"><h2>Tower · 관제탑</h2><div class="r"><small id="twrInfo">TWR 118.1</small><button class="fold" aria-label="접기">–</button></div></div>
+  <div class="body">
+    <div class="twr">
+      <div class="clr" id="clrBanner">HOLD SHORT · RWY 11</div>
+      <div class="twrbtn"><button class="btn primary" id="btnLand">✈ 착륙</button><button class="btn" id="btnGoAround">↺ 복행</button></div>
+    </div>
+    <div class="phases" id="phases"><span>PARKED</span><span>TAXI</span><span>TAKEOFF</span><span>CLIMB</span><span>CRUISE</span><span>APPROACH</span><span>ARRIVED</span></div>
+    <div class="ticker" id="ticker"></div>
   </div>
 </section>
 
@@ -316,15 +390,48 @@ input[type=range]{accent-color:var(--brass);min-width:0}
     <div class="ctl">
       <div class="cell"><span class="lbl">계기 밝기</span><div class="knob" id="dimKnob" role="slider" tabindex="0" aria-label="계기 밝기"><i></i></div><span class="state num" id="dimV">100%</span></div>
       <div class="cell"><span class="lbl">무드 조명</span><button class="swatch" id="moodBtn" aria-label="무드 조명 색 바꾸기"></button><span class="state" id="moodV">GREEN</span></div>
-      <div class="cell"><span class="lbl">Emergency</span><button class="emer" id="tHaz" aria-pressed="false">HAZARD</button><span class="led" id="lHaz"></span></div>
+      <div class="cell"><span class="lbl">미디어 볼륨</span><div class="knob" id="volKnob" role="slider" tabindex="0" aria-label="미디어 볼륨"><i></i></div><span class="state num" id="volKV">70</span></div>
+      <div class="cell"><span class="lbl">주행 녹화</span><button class="tog" id="tRec" aria-pressed="false" aria-label="주행 녹화"></button><span class="led" id="lRec"></span></div>
+      <div class="cell"><span class="lbl">Emergency SOS</span><div class="sosbox"><button class="sosbtn" id="sosBtn" disabled>SOS</button><button class="soslid" id="sosLid" aria-expanded="false" aria-label="SOS 덮개 열기">COVER</button></div><span class="state" id="sosV">덮개를 여세요</span></div>
+      <div class="cell"><span class="lbl">미디어 음소거</span><button class="tog" id="tMute" aria-pressed="false" aria-label="미디어 음소거"></button><span class="led" id="lMute"></span></div>
+      <div class="cell"><span class="lbl">Hazard</span><button class="emer" id="tHaz" aria-pressed="false">HAZARD</button><span class="led" id="lHaz"></span></div>
       <div class="cell"><span class="lbl">속도 경보</span><button class="tog" id="tLimit" aria-pressed="false" aria-label="속도 경보"></button><div class="step"><button id="limDn" aria-label="경보 속도 낮추기">−</button><span class="num" id="limV">100</span><button id="limUp" aria-label="경보 속도 높이기">+</button></div></div>
       <div class="cell"><span class="lbl">음성 안내</span><button class="tog" id="tVoice" aria-pressed="false" aria-label="음성 안내"></button><button class="btn" id="sayNow" style="padding:4px 8px">지금 읽기</button></div>
-      <div class="cell"><span class="lbl">야간 모드</span><button class="tog" id="tNight" aria-pressed="false" aria-label="야간 모드"></button><span class="led" id="lNight"></span></div>
+      <div class="cell"><span class="lbl">주간·야간</span><button class="tog" id="tNight" aria-pressed="false" aria-label="야간 모드"></button><span class="led" id="lNight"></span></div>
       <div class="cell"><span class="lbl">HUD 반전</span><button class="tog" id="tMirror" aria-pressed="false" aria-label="HUD 좌우 반전"></button><span class="state">유리 반사용</span></div>
       <div class="cell"><span class="lbl">화면 유지</span><button class="tog" id="tWake" aria-pressed="false" aria-label="화면 꺼짐 방지"></button><span class="state" id="sWake">OFF</span></div>
       <div class="cell"><span class="lbl">전체 화면</span><button class="tog" id="tFull" aria-pressed="false" aria-label="전체 화면"></button><span class="state" id="sFull">OFF</span></div>
       <div class="cell"><span class="lbl">모듈 펼침</span><button class="btn" id="unfoldAll" style="padding:6px 8px">모두 펼치기</button><button class="btn" id="foldAll" style="padding:6px 8px">모두 접기</button></div>
     </div>
+  </div>
+</section>
+
+<!-- ===== control deck ===== -->
+<section class="mod" id="m-deck">
+  <div class="mh"><h2>Control Deck</h2><div class="r"><small>15 BUTTONS · 키보드·매크로 패드 호환</small><button class="fold" aria-label="접기">–</button></div></div>
+  <div class="body">
+    <div class="deck" id="deck"></div>
+    <p class="note">USB·블루투스 키보드나 매크로 패드(몬스타덱 등)에 버튼 아래 표시된 키를 지정하면 그대로 동작합니다. 핸들 리모컨·블루투스 미디어 버튼(재생/이전/다음)도 연동됩니다.</p>
+  </div>
+</section>
+
+<!-- ===== logbook ===== -->
+<section class="mod" id="m-log">
+  <div class="mh"><h2>Flight Log · 주행 기록 · 차계부</h2><div class="r"><button class="fold" aria-label="접기">–</button></div></div>
+  <div class="body">
+    <div class="bar"><button class="btn primary" id="logSave">지금까지 주행 저장</button><span class="note" style="margin:0">도착(ARRIVED) 때 자동 저장됩니다</span></div>
+    <div class="tblwrap" style="margin-top:7px"><table class="logtbl"><thead><tr><th>출발</th><th>거리 km</th><th>시간</th><th>평균</th><th>최고</th><th>최고고도</th></tr></thead><tbody id="logBody"></tbody></table></div>
+    <div class="stats" id="logStats"></div>
+    <h3 class="lbl" style="margin:12px 0 0">차계부 · 주유 기록</h3>
+    <form class="fuelf" id="fuelForm" autocomplete="off">
+      <input type="date" id="fDate" aria-label="주유 날짜">
+      <input type="number" id="fLit" step="0.01" min="0" placeholder="주유량 L" aria-label="주유량 리터">
+      <input type="number" id="fCost" step="1" min="0" placeholder="금액 원" aria-label="금액">
+      <input type="number" id="fOdo" step="1" min="0" placeholder="누적 km" aria-label="누적 주행거리">
+      <button class="btn primary" type="submit">추가</button>
+    </form>
+    <div class="stats" id="fuelStats"></div>
+    <div class="tblwrap"><table class="logtbl"><thead><tr><th>날짜</th><th>주유 L</th><th>금액</th><th>누적 km</th><th>연비 km/L</th><th></th></tr></thead><tbody id="fuelBody"></tbody></table></div>
   </div>
 </section>
 
@@ -338,6 +445,7 @@ input[type=range]{accent-color:var(--brass);min-width:0}
       <a class="btn" id="goNaver" href="https://map.naver.com/" target="_blank" rel="noopener">네이버</a>
       <a class="btn" id="goTmap" href="https://www.tmap.co.kr/" target="_blank" rel="noopener">T맵</a>
     </form>
+    <div class="applinks"><button class="btn" id="appTmap">T맵 앱으로</button><button class="btn" id="appNaver">네이버지도 앱으로</button><button class="btn" id="appKakao">카카오맵 앱으로</button></div>
     <div class="quick" id="quick"></div>
     <div class="recent" id="recent"></div>
     <p class="note">즐겨찾기 버튼: 짧게 누르면 길찾기 · 1초 누르면 입력한 목적지를 저장합니다.</p>
@@ -349,9 +457,9 @@ input[type=range]{accent-color:var(--brass);min-width:0}
   <section class="mod" id="m-eq">
     <div class="mh"><h2>Equalizer</h2><div class="r"><button class="fold" aria-label="접기">–</button></div></div>
     <div class="body">
-      <div class="bar" style="margin-bottom:6px"><button class="btn" data-eq="flat">FLAT</button><button class="btn" data-eq="bass">BASS</button><button class="btn" data-eq="vocal">VOCAL</button><button class="btn" data-eq="road">ROAD</button><button class="btn" data-eq="night">NIGHT</button></div>
+      <div class="bar" style="margin-bottom:6px"><button class="btn" data-eq="flat">FLAT</button><button class="btn" data-eq="bass">BASS</button><button class="btn" data-eq="vocal">VOCAL</button><button class="btn" data-eq="road">ROAD</button><button class="btn" data-eq="night">NIGHT</button><button class="btn" data-eq="rock">ROCK</button><button class="btn" data-eq="pop">POP</button><button class="btn" data-eq="dance">DANCE</button><button class="btn" data-eq="boost">BASS BOOST</button><button class="btn" data-eq="classical">CLASSICAL</button></div>
       <div class="screen"><div class="eq" id="eq"></div></div>
-      <p class="note">불러온 음악에 실제로 적용됩니다 (±12 dB).</p>
+      <p class="note">음악과 라디오(대부분의 방송) 모두에 적용됩니다 (±12 dB).</p>
     </div>
   </section>
   <section class="mod" id="m-apps">
@@ -369,6 +477,21 @@ input[type=range]{accent-color:var(--brass);min-width:0}
   </section>
 </div>
 </div>
+<dialog id="setDlg">
+  <form method="dialog">
+    <div class="mh" style="margin:0 0 6px"><h2>설정</h2><button class="btn" value="close">닫기</button></div>
+    <div class="setg">
+      <label for="sCall">호출부호</label><input id="sCall" maxlength="12" placeholder="세움1">
+      <label for="sSos">SOS 전화번호</label><input id="sSos" type="tel" placeholder="예: 01012345678">
+      <label for="sSlow">SLOW DOWN 경고</label><input id="sSlow" type="number" min="40" max="200" step="10">
+      <label for="sAutoN">주야간 자동</label><select id="sAutoN"><option value="1">켬 (해 뜨고 지는 시각 기준)</option><option value="0">끔 (수동)</option></select>
+      <label for="sSfx">효과음</label><select id="sSfx"><option value="1">켬</option><option value="0">끔</option></select>
+      <label for="sSkin">테마</label><select id="sSkin"><option value="airline">에어라인</option><option value="airforce">에어포스</option></select>
+    </div>
+    <p class="note">관제탑 음성 안내는 조종석 스위치의 [음성 안내]를 켜면 나옵니다. 과속 단속 카메라 위치 안내는 공개된 실시간 자료가 없어 넣지 못했습니다.</p>
+    <div class="bar" style="justify-content:flex-end;margin-top:8px"><button class="btn primary" value="save" id="setSave">저장</button></div>
+  </form>
+</dialog>
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -393,7 +516,7 @@ $('#foldAll').onclick=()=>{$$('.mod[id]:not(.folded)').forEach(m=>{if(m.id!=='m-
 const S={speed:0,max:0,target:80,sim:false,gps:false,heading:113,alt:null,acc:null,dist:0,time:0,road:0,lat:35.8714,lon:128.6014,fix:false};
 const tripSaved=store.get('trip',null);if(tripSaved){S.dist=tripSaved.d||0;S.time=tripSaved.t||0;S.max=tripSaved.m||0}
 setInterval(()=>store.set('trip',{d:S.dist,t:S.time,m:S.max}),5000);
-$('#tripReset').onclick=()=>{S.dist=0;S.time=0;S.max=0;toast('트립을 초기화했습니다')};
+$('#tripReset').onclick=()=>{S.dist=0;S.time=0;S.max=0;if(typeof tripStart!=='undefined'){}toast('트립을 초기화했습니다')};
 
 /* ---------- header gauges ---------- */
 function bezel(c,W){const R=W/2-6;c.clearRect(0,0,W,W);const g=c.createRadialGradient(W*.42,W*.38,4,W/2,W/2,R);g.addColorStop(0,'#2a3430');g.addColorStop(1,'#0c1210');
@@ -472,7 +595,7 @@ if(store.get('gps',true))gpsSet(true);
 let curView='hud';
 function showView(v){curView=v;$$('.mode').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));$$('.pd .view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
   $('#camCtl').style.display=v==='cam'?'':'none';$('#followBtn').style.display=v==='map'?'':'none';
-  if(v==='map')initMap();store.set('view',v)}
+  if(v==='map')initMap();if(v==='rmap')initRmap();store.set('view',v)}
 $$('.mode').forEach(b=>b.onclick=()=>showView(b.dataset.v));
 
 /* ---------- HUD canvas ---------- */
@@ -486,10 +609,16 @@ function tape(c,x,y,w,h,val,step,label,left,fmt=v=>String(Math.round(v)),px=3.2)
   c.fillStyle='#071009';c.strokeStyle=ph;c.fillRect(x-4,mid-18,w+8,36);c.strokeRect(x-4,mid-18,w+8,36);
   c.fillStyle=ph;c.font='600 22px "IBM Plex Mono",monospace';c.textAlign='center';c.fillText(fmt(val),x+w/2,mid+8);
   c.fillStyle='#e8fff1';c.font='600 13px "Barlow Condensed",sans-serif';c.fillText(label,x+w/2,y-8)}
-function drawHUD(){const W=hud.width,H=hud.height,c=hc,hz=H*.47,night=document.documentElement.dataset.night==='1',ph=css('--phos');
+const STARS=Array.from({length:70},(_,i)=>[(Math.sin(i*91.7)*.5+.5),(Math.sin(i*47.3)*.5+.5),(i%5?1:2)]);
+function drawHUD(){const W=hud.width,H=hud.height,c=hc,hz=H*.47+pitchV,night=document.documentElement.dataset.night==='1',ph=css('--phos');
   let g=c.createLinearGradient(0,0,0,hz);g.addColorStop(0,night?'#06121c':'#2e5f7c');g.addColorStop(1,night?'#16303a':'#a9c7cf');c.fillStyle=g;c.fillRect(0,0,W,hz);
+  if(night){const tw=performance.now()/600;STARS.forEach(([x,y,r],i)=>{c.globalAlpha=.45+.45*Math.sin(tw+i);c.fillStyle='#fff';c.fillRect(x*W,y*(hz-10),r,r)});c.globalAlpha=1;
+    const mx=W*.78,my=hz*.32;c.fillStyle='#f4efd8';c.beginPath();c.arc(mx,my,22,0,7);c.fill();c.fillStyle=night?'#0b1e2a':'#000';c.beginPath();c.arc(mx+9,my-6,20,0,7);c.fill()}
   c.fillStyle=night?'#ffffff10':'#ffffff55';for(let i=0;i<6;i++){const x=((i*190-S.road*.3)%(W+200)+W+200)%(W+200)-100,y=60+(i%3)*30;c.beginPath();c.ellipse(x,y,70,12,0,0,7);c.ellipse(x+40,y-8,40,10,0,0,7);c.fill()}
   g=c.createLinearGradient(0,hz,0,H);g.addColorStop(0,night?'#1b2a22':'#7d9a6a');g.addColorStop(1,night?'#0c140f':'#3f5a35');c.fillStyle=g;c.fillRect(0,hz,W,H-hz);
+  for(let i=0;i<9;i++){const z=((i/9)+(S.road%90)/90)%1,p=Math.pow(z,2),y=hz+(H-hz)*p;c.fillStyle=night?'#ffffff06':'#00000012';c.fillRect(0,y,W,1+6*p)}
+  if(night){for(let i=0;i<46;i++){const z=((i*0.137+(S.road%120)/120))%1,p=Math.pow(z,2.4),side=i%2?1:-1,x=W/2+side*(60+((i*53)%420)*(.2+p)),y=hz+(H-hz)*p;
+    c.fillStyle=i%3?'#ffd27a':'#cfe8ff';c.globalAlpha=.35+.5*p;c.fillRect(x,y,1.5+3*p,1.5+3*p)}c.globalAlpha=1}
   const cx=W/2,tw=24,bw=W*.6;c.fillStyle=night?'#2a2f2e':'#5e6563';c.beginPath();c.moveTo(cx-tw,hz);c.lineTo(cx+tw,hz);c.lineTo(cx+bw/2,H);c.lineTo(cx-bw/2,H);c.fill();
   c.fillStyle='#e9eef0';c.globalAlpha=.75;for(let k=-5;k<=5;k++){if(!k)continue;const x0=cx+k*(bw/26),x1=cx+k*(tw/6);c.beginPath();c.moveTo(x0-6,H);c.lineTo(x0+6,H);c.lineTo(x1+.6,hz+2);c.lineTo(x1-.6,hz+2);c.fill()}c.globalAlpha=1;
   for(let i=0;i<14;i++){const z=((i/14)+(S.road%60)/60)%1,p=Math.pow(z,2.2),y=hz+(H-hz)*p,w=2+16*p,h=6+50*p;c.fillStyle='#f6f2df';c.fillRect(cx-w/2,y,w,h*.6)}
@@ -506,6 +635,11 @@ function drawHUD(){const W=hud.width,H=hud.height,c=hc,hz=H*.47,night=document.d
   c.fillStyle=ph;c.beginPath();c.moveTo(cx-8,57);c.lineTo(cx+8,57);c.lineTo(cx,49);c.fill();c.font='600 15px "IBM Plex Mono",monospace';c.fillText(String(Math.round(S.heading)).padStart(3,'0')+'°',cx,76);
   c.textAlign='left';c.fillStyle=ph;c.font='600 14px "Barlow Condensed",sans-serif';c.fillText(S.gps?(S.fix?`● LIVE GPS ±${Math.round(S.acc||0)}m`:'○ GPS 수신 대기'):S.sim?'● SIMULATION':'○ STANDBY',cx-205,H-14);
   c.textAlign='right';c.fillText(new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}),cx+205,H-14);
+  if(phase==='APPROACH'||phase==='ARRIVED'){const py=hz+8;for(let k=0;k<4;k++){const red=phase==='ARRIVED'?k<2:(k<2+(Math.floor(performance.now()/900)%2));c.fillStyle=red?'#ff4a3a':'#fff6dc';c.beginPath();c.arc(cx-150+k*16,py,5,0,7);c.fill()}
+    c.fillStyle='#f6f2df';c.font='700 34px "IBM Plex Mono",monospace';c.textAlign='center';c.globalAlpha=.85;c.fillText(rwy(),cx,H-60);c.globalAlpha=1}
+  {const lab=phaseLabel();c.font='600 15px "IBM Plex Mono",monospace';const w=c.measureText(lab).width+24;c.fillStyle='#071009cc';c.fillRect(130,64,w,30);c.strokeStyle=phase==='CRUISE'||phase==='CLIMB'?ph:css('--amber');c.lineWidth=1.5;c.strokeRect(130,64,w,30);
+    c.fillStyle=c.strokeStyle;c.textAlign='left';c.fillText(lab,142,85)}
+  if(slowDown){c.fillStyle='#ff2a1a33';c.fillRect(0,0,W,H);if(Math.floor(performance.now()/400)%2){c.fillStyle=css('--warn');c.font='700 54px "Barlow Condensed",sans-serif';c.textAlign='center';c.fillText('SLOW DOWN',cx,hz-30)}}
   if(haz&&Math.floor(performance.now()/450)%2){c.fillStyle='#f2b54422';c.fillRect(0,0,W,H);c.fillStyle=css('--amber');c.font='700 26px "Barlow Condensed",sans-serif';c.textAlign='center';c.fillText('▲ HAZARD',cx,H-40)}
   if(overLimit){c.fillStyle=css('--warn');c.font='700 30px "Barlow Condensed",sans-serif';c.textAlign='center';c.fillText(`속도 경보 ${limit} KM/H`,cx,hz+60)}}
 
@@ -532,14 +666,30 @@ function drawCompass(){const c=cc,W=1000,H=538,cx=W/2,cy=H/2,R=H*.42;c.fillStyle
   c.textAlign='left';c.font='600 18px "IBM Plex Mono",monospace';c.fillText(S.fix?`위도 ${S.lat.toFixed(5)}`:'위치 없음',30,40);c.fillText(S.fix?`경도 ${S.lon.toFixed(5)}`:'GPS를 켜세요',30,66)}
 
 /* ---------- map (Leaflet + OSM) ---------- */
-let map=null,marker=null,follow=true,trail=null;
+let map=null,marker=null,follow=true,trail=null,rmap=null,rmarker=null;const mapLayers={};
+const isNight=()=>document.documentElement.dataset.night==='1';
+function tiles(){return isNight()?L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd',attribution:'© OpenStreetMap © CARTO'})
+  :L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'})}
+function retile(){[['main',map],['round',rmap]].forEach(([k,m])=>{if(!m)return;if(mapLayers[k])m.removeLayer(mapLayers[k]);mapLayers[k]=tiles().addTo(m)})}
+function initRmap(){if(!window.L){return}if(rmap){setTimeout(()=>rmap.invalidateSize(),50);return}
+  rmap=L.map('rmap',{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false,keyboard:false,boxZoom:false}).setView([S.lat,S.lon],16);
+  mapLayers.round=tiles().addTo(rmap);rmarker=L.circleMarker([S.lat,S.lon],{radius:1,opacity:0,fillOpacity:0}).addTo(rmap);setTimeout(()=>rmap.invalidateSize(),60)}
+const rr=$('#rmapRing'),rrc=rr.getContext('2d');
+function drawRmap(){if(!rmap)return;rmap.setView([S.lat,S.lon],rmap.getZoom(),{animate:false});$('#rmap').style.transform=`rotate(${-S.heading}deg)`;
+  const c=rrc,W=rr.width,H=rr.height,cx=W/2,cy=H/2,R=H*.45;c.clearRect(0,0,W,H);
+  c.save();c.translate(cx,cy);c.rotate(-S.heading*Math.PI/180);c.textAlign='center';c.font='700 22px "Barlow Condensed",sans-serif';
+  for(let d=0;d<360;d+=10){c.save();c.rotate(d*Math.PI/180);c.strokeStyle='#e8fff1';c.lineWidth=d%30?1:2.5;c.beginPath();c.moveTo(0,-R+2);c.lineTo(0,-R+(d%30?10:18));c.stroke();
+    const Lb={0:'N',90:'E',180:'S',270:'W'}[d];if(Lb){c.fillStyle=Lb==='N'?css('--warn'):'#e8fff1';c.strokeStyle='#000';c.lineWidth=4;c.strokeText(Lb,0,-R+40);c.fillText(Lb,0,-R+40)}c.restore()}c.restore();
+  c.fillStyle=css('--amber');c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.moveTo(cx,cy-18);c.lineTo(cx-13,cy+14);c.lineTo(cx,cy+6);c.lineTo(cx+13,cy+14);c.closePath();c.fill();c.stroke();
+  c.fillStyle='#071009';c.fillRect(cx-60,8,120,30);c.strokeStyle=css('--phos');c.strokeRect(cx-60,8,120,30);c.fillStyle=css('--phos');c.font='600 18px "IBM Plex Mono",monospace';c.fillText(`HDG ${String(Math.round(S.heading)).padStart(3,'0')}°`,cx,30);
+  c.textAlign='left';c.fillText(`${Math.round(S.speed)} km/h`,16,30);c.textAlign='right';c.fillText(phaseLabel(),W-16,30)}
 function initMap(){if(map||!window.L){if(!window.L)$('#map').innerHTML='<div class="camMsg" style="height:100%">지도를 불러오지 못했습니다 (인터넷 연결 확인)</div>';else setTimeout(()=>map.invalidateSize(),50);return}
   map=L.map('map',{zoomControl:true,attributionControl:true}).setView([S.lat,S.lon],15);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+  mapLayers.main=tiles().addTo(map);
   marker=L.circleMarker([S.lat,S.lon],{radius:9,color:'#0c1210',weight:3,fillColor:css('--phos'),fillOpacity:1}).addTo(map);
   trail=L.polyline([],{color:css('--amber'),weight:4,opacity:.8}).addTo(map);
   map.on('dragstart',()=>{follow=false;$('#followBtn').textContent='지도 따라가기 OFF'});setTimeout(()=>map.invalidateSize(),60)}
-function updMap(){if(!map)return;const p=[S.lat,S.lon];marker.setLatLng(p);trail.addLatLng(p);if(follow)map.setView(p,map.getZoom(),{animate:false})}
+function updMap(){if(rmarker)rmarker.setLatLng([S.lat,S.lon]);if(!map)return;const p=[S.lat,S.lon];marker.setLatLng(p);trail.addLatLng(p);if(follow)map.setView(p,map.getZoom(),{animate:false})}
 $('#followBtn').onclick=()=>{follow=!follow;$('#followBtn').textContent='지도 따라가기 '+(follow?'ON':'OFF');if(follow)updMap()};
 
 /* ---------- dashcam ---------- */
@@ -564,7 +714,8 @@ $('#snapBtn').onclick=()=>{if(!camStream)return;const cv=document.createElement(
 /* ---------- music player ---------- */
 let actx,src,gain,pan,analyser,filters=[];const audio=new Audio();audio.preload='metadata';
 const BANDS=[31,62,125,250,500,1000,2000,4000,8000,16000];let eqVals=store.get('eq',BANDS.map(()=>0));
-function ensureAudio(){if(actx)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;actx=new AC();src=actx.createMediaElementSource(audio);let node=src;
+let radioSrc=null,eqIn=null;
+function ensureAudio(){if(actx)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;actx=new AC();src=actx.createMediaElementSource(audio);eqIn=actx.createGain();src.connect(eqIn);let node=eqIn;
   filters=BANDS.map((f,i)=>{const b=actx.createBiquadFilter();b.type=i===0?'lowshelf':i===BANDS.length-1?'highshelf':'peaking';b.frequency.value=f;b.Q.value=1.1;b.gain.value=eqVals[i];node.connect(b);node=b;return b});
   pan=actx.createStereoPanner?actx.createStereoPanner():null;gain=actx.createGain();analyser=actx.createAnalyser();analyser.fftSize=1024;analyser.smoothingTimeConstant=.75;
   if(pan){node.connect(pan);node=pan}node.connect(gain);gain.connect(analyser);analyser.connect(actx.destination);applyVol();applyBal()}
@@ -585,7 +736,7 @@ $('#repBtn').onclick=e=>{repeat=repeat==='all'?'one':repeat==='one'?'off':'all';
 const fmt=t=>isFinite(t)?pad(Math.floor(t/60))+':'+pad(Math.floor(t%60)):'00:00';
 let seeking=false;audio.ontimeupdate=()=>{$('#ptime').textContent=fmt(audio.currentTime);if(audio.duration&&!seeking)$('#seek').value=audio.currentTime/audio.duration*1000};
 $('#seek').oninput=e=>{seeking=true;if(audio.duration)audio.currentTime=e.target.value/1000*audio.duration};$('#seek').onchange=()=>seeking=false;
-function applyVol(){const v=+$('#vol').value;$('#volV').textContent=v;if(gain)gain.gain.value=(v/100)**1.6;else audio.volume=v/100}
+function applyVol(){const v=+$('#vol').value;$('#volV').textContent=v;audio.volume=v/100}
 function applyBal(){const b=+$('#bal').value;$('#balV').textContent=b===0?'C':(b<0?'L':'R')+Math.abs(b);if(pan)pan.pan.value=b/100}
 $('#vol').value=store.get('vol',70);$('#vol').oninput=()=>{applyVol();store.set('vol',+$('#vol').value)};$('#bal').oninput=applyBal;applyVol();applyBal();
 
@@ -595,7 +746,7 @@ let vizI=store.get('viz',0)%VIZ.length;const vz=$('#viz'),vc=vz.getContext('2d')
 const spec=document.createElement('canvas');spec.width=640;spec.height=152;const spc=spec.getContext('2d');
 function setViz(i){vizI=(i+VIZ.length)%VIZ.length;$('#vizName').textContent=VIZ[vizI];$('#vizIdx').textContent=`${vizI+1}/${VIZ.length}`;store.set('viz',vizI);spc.clearRect(0,0,640,152)}
 $('#vizPrev').onclick=()=>setViz(vizI-1);$('#vizNext').onclick=()=>setViz(vizI+1);setViz(vizI);
-function getData(){const live=analyser&&!audio.paused;const F=new Uint8Array(512),T=new Uint8Array(1024);
+function getData(){const live=analyser&&(!audio.paused||(radioOn&&radio===radioH&&radioSrc));const F=new Uint8Array(512),T=new Uint8Array(1024);
   if(live){analyser.getByteFrequencyData(F);analyser.getByteTimeDomainData(T)}else{fakeT+=.04;for(let i=0;i<512;i++)F[i]=(18+12*Math.sin(fakeT+i*.15))*(1-i/600);for(let i=0;i<1024;i++)T[i]=128+6*Math.sin(fakeT*3+i*.05)}
   return{F,T,live}}
 function drawViz(){const c=vc,W=vz.width,H=vz.height,{F,T}=getData(),ph=css('--phos'),am=css('--amber');c.clearRect(0,0,W,H);c.lineWidth=2;
@@ -621,11 +772,12 @@ function drawViz(){const c=vc,W=vz.width,H=vz.height,{F,T}=getData(),ph=css('--p
 /* ---------- EQ ---------- */
 const eqEl=$('#eq');BANDS.forEach((f,i)=>{const b=document.createElement('div');b.className='band';b.innerHTML=`<input type="range" min="-12" max="12" step="1" value="${eqVals[i]}" aria-label="${f}Hz" id="eq${i}"><span>${f>=1000?f/1000+'k':f}</span>`;
   b.querySelector('input').oninput=e=>{eqVals[i]=+e.target.value;if(filters[i])filters[i].gain.value=eqVals[i];store.set('eq',eqVals)};eqEl.append(b)});
-const PRE={flat:[0,0,0,0,0,0,0,0,0,0],bass:[7,6,4,2,0,-1,0,1,2,2],vocal:[-2,-1,0,2,4,5,4,2,0,-1],road:[5,4,2,0,-1,0,2,4,5,4],night:[-3,-2,0,1,2,2,1,-1,-3,-4]};
+const PRE={flat:[0,0,0,0,0,0,0,0,0,0],bass:[7,6,4,2,0,-1,0,1,2,2],vocal:[-2,-1,0,2,4,5,4,2,0,-1],road:[5,4,2,0,-1,0,2,4,5,4],night:[-3,-2,0,1,2,2,1,-1,-3,-4],rock:[5,4,3,1,-1,-1,1,3,4,5],pop:[-1,1,3,4,3,1,0,1,2,2],dance:[6,5,2,0,0,-1,1,3,4,4],boost:[9,8,6,3,0,0,0,0,1,1],classical:[4,3,2,1,-1,-1,0,2,3,4]};
 $$('[data-eq]').forEach(btn=>btn.onclick=()=>{eqVals=PRE[btn.dataset.eq].slice();eqVals.forEach((v,i)=>{$('#eq'+i).value=v;if(filters[i])filters[i].gain.value=v});store.set('eq',eqVals);toast('이퀄라이저: '+btn.textContent)});
 
 /* ---------- internet radio ---------- */
-const radio=new Audio();radio.preload='none';let stations=[],sti=0,radioOn=false;
+const radioH=new Audio(),radioN=new Audio();radioH.preload=radioN.preload='none';let radio=radioH;let stations=[],sti=0,radioOn=false;
+function routeRadioEQ(){try{ensureAudio();if(actx&&!radioSrc){radioSrc=actx.createMediaElementSource(radioH);radioSrc.connect(eqIn)}actx&&actx.resume()}catch{}}
 const FALLBACK_HOSTS=['https://de1.api.radio-browser.info','https://fi1.api.radio-browser.info','https://nl1.api.radio-browser.info','https://at1.api.radio-browser.info'];
 /* 서울 기준 FM 주파수 (이름 매칭) + 웹 재생이 막힌 방송 제외 */
 const KNOWN=[[/sbs\s*power/i,'SBS 파워FM',107.7],[/sbs\s*love/i,'SBS 러브FM',103.5],[/kbs\s*classic/i,'KBS 클래식FM',93.1],[/kbs\s*cool/i,'KBS 쿨FM',89.1],
@@ -651,7 +803,8 @@ function radioOk(){radioOn=true;$('#rdState').textContent='ON AIR';$('#rPlay').c
 function radioFail(s,why){radioOn=false;$('#rPlay').classList.remove('lit');bad.add(s.id);store.set('badSt2',[...bad]);renderStations();showStation();
   $('#rdState').textContent='수신 실패';toast(`'${s.name}' 수신 실패${why?' ('+why+')':''} — 다음 방송을 눌러보세요`)}
 function withTimeout(p,ms){return Promise.race([p,new Promise((_,j)=>setTimeout(()=>j(new Error('timeout')),ms))])}
-async function radioPlay(){const s=stations[sti];if(!s)return;const my=++radioTry;audio.pause();setPl('PAUSE');killHls();radio.pause();radio.removeAttribute('src');radio.load();
+async function radioPlay(){const s=stations[sti];if(!s)return;const my=++radioTry;audio.pause();setPl('PAUSE');killHls();[radioH,radioN].forEach(r=>{r.pause();r.removeAttribute('src');r.load()});
+  const useH=s.hls&&window.Hls&&Hls.isSupported();radio=useH?radioH:radioN;if(useH)routeRadioEQ();radio.muted=muted;
   radio.volume=$('#rVol').value/100;$('#rdState').textContent='주파수 맞추는 중…';
   if(s.hls&&window.Hls&&Hls.isSupported()){ // HLS: hls.js 우선 (안드로이드 크롬 기본 재생기는 멈추는 경우가 있음)
     hls=new Hls({lowLatencyMode:false,manifestLoadingMaxRetry:2,levelLoadingMaxRetry:2});let done=false;
@@ -661,10 +814,10 @@ async function radioPlay(){const s=stations[sti];if(!s)return;const my=++radioTr
     hls.loadSource(s.url);hls.attachMedia(radio);return}
   radio.src=s.url;
   try{await withTimeout(radio.play(),12000);if(my===radioTry)radioOk()}catch(e){if(my===radioTry){radio.pause();radio.removeAttribute('src');radio.load();radioFail(s,e.message==='timeout'?'응답 없음':'형식 미지원')}}}
-function radioStop(){radioTry++;killHls();radio.pause();radio.removeAttribute('src');radio.load();radioOn=false;$('#rdState').textContent='OFF';$('#rPlay').classList.remove('lit')}
-radio.onwaiting=()=>{if(radioOn)$('#rdState').textContent='버퍼링…'};radio.onplaying=()=>{if(radioOn)$('#rdState').textContent='ON AIR'};
+function radioStop(){radioTry++;killHls();[radioH,radioN].forEach(r=>{r.pause();r.removeAttribute('src');r.load()});radioOn=false;$('#rdState').textContent='OFF';$('#rPlay').classList.remove('lit')}
+[radioH,radioN].forEach(r=>{r.onwaiting=()=>{if(radioOn&&r===radio)$('#rdState').textContent='버퍼링…'};r.onplaying=()=>{if(radioOn&&r===radio)$('#rdState').textContent='ON AIR'}});
 $('#rPlay').onclick=radioPlay;$('#rStop').onclick=radioStop;$('#rPrev').onclick=()=>tune(sti-1);$('#rNext').onclick=()=>tune(sti+1);
-$('#rVol').value=store.get('rvol',70);$('#rVol').oninput=e=>{radio.volume=e.target.value/100;store.set('rvol',+e.target.value)};
+$('#rVol').value=store.get('rvol',70);$('#rVol').oninput=e=>{radioH.volume=radioN.volume=e.target.value/100;store.set('rvol',+e.target.value)};
 const dial=$('#dial'),dc=dial.getContext('2d');
 function drawDial(){const c=dc,W=dial.width,H=dial.height;let g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#e9cf8f');g.addColorStop(1,'#c9a35a');c.fillStyle=g;c.fillRect(0,0,W,H);
   c.strokeStyle='#3b2c10';c.fillStyle='#3b2c10';c.textAlign='center';c.font='600 18px "IBM Plex Mono",monospace';
@@ -693,8 +846,9 @@ function setMood(i){mood=i%MOODS.length;const [n,col]=MOODS[mood];document.docum
   if(marker)marker.setStyle({fillColor:col});drawWx();drawBat()}
 $('#moodBtn').onclick=()=>setMood(mood+1);setMood(mood);
 function toggle(id,fn){const el=$(id);el.onclick=()=>{const on=el.getAttribute('aria-pressed')!=='true';el.setAttribute('aria-pressed',on);fn(on,el)}}
-toggle('#tNight',on=>{document.documentElement.dataset.night=on?'1':'0';$('#lNight').classList.toggle('on',on);const p=$('#pillNight');p.textContent=on?'NIGHT':'DAY';p.classList.toggle('on',on);store.set('night',on)});
-if(store.get('night',false))$('#tNight').click();
+toggle('#tNight',on=>{setNight(on,true)});
+function setNight(on,manual){document.documentElement.dataset.night=on?'1':'0';$('#tNight').setAttribute('aria-pressed',on);if(window.L)retile();if(manual)nightManualAt=Date.now();$('#lNight').classList.toggle('on',on);const p=$('#pillNight');p.textContent=on?'NIGHT':'DAY';p.classList.toggle('on',on);store.set('night',on);if(typeof drawHUD==='function'){}}
+let nightManualAt=0;if(store.get('night',false))setNight(true);
 toggle('#tMirror',on=>{$('#hud').classList.toggle('mirror',on);store.set('mirror',on)});if(store.get('mirror',false))$('#tMirror').click();
 let haz=false,hazT=null;
 toggle('#tHaz',on=>{haz=on;$('#pillHaz').hidden=!on;$('#pillHaz').classList.toggle('warn',on);$('#lHaz').classList.toggle('amb',on);clearInterval(hazT);if(on){beep(880);hazT=setInterval(()=>beep(880),900)}});
@@ -731,6 +885,152 @@ function renderQuick(){const q=$('#quick');q.innerHTML='';quick.forEach((s,i)=>{
   b.addEventListener('pointerleave',()=>clearTimeout(t));q.append(b)})}
 renderQuick();renderRecent();
 
+/* ================= v3: settings · skin · compact ================= */
+const CFG=Object.assign({call:'세움1',sos:'',slow:120,autoNight:true,sfx:true,skin:'airline'},store.get('cfg',{}));
+function saveCfg(){store.set('cfg',CFG)}
+function applySkin(){document.documentElement.dataset.skin=CFG.skin;$('#btnSkin').textContent=CFG.skin==='airforce'?'에어포스':'에어라인'}
+applySkin();
+$('#btnSkin').onclick=()=>{CFG.skin=CFG.skin==='airforce'?'airline':'airforce';if(CFG.skin==='airforce')setMood(0);saveCfg();applySkin();toast('테마: '+$('#btnSkin').textContent)};
+function setCompact(on){document.body.classList.toggle('compact',on);$('#btnCompact').classList.toggle('on',on);$('#btnCompact').textContent=on?'전체 모드':'간편 모드';store.set('compact',on);if(map)setTimeout(()=>map.invalidateSize(),80)}
+$('#btnCompact').onclick=()=>setCompact(!document.body.classList.contains('compact'));setCompact(store.get('compact',false));
+const dlg=$('#setDlg');
+$('#btnSettings').onclick=()=>{$('#sCall').value=CFG.call;$('#sSos').value=CFG.sos;$('#sSlow').value=CFG.slow;$('#sAutoN').value=CFG.autoNight?'1':'0';$('#sSfx').value=CFG.sfx?'1':'0';$('#sSkin').value=CFG.skin;
+  if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','')};
+$('#setSave').onclick=()=>{CFG.call=$('#sCall').value.trim()||'세움1';CFG.sos=$('#sSos').value.replace(/[^0-9+]/g,'');CFG.slow=Math.max(40,Math.min(200,+$('#sSlow').value||120));
+  CFG.autoNight=$('#sAutoN').value==='1';CFG.sfx=$('#sSfx').value==='1';CFG.skin=$('#sSkin').value;saveCfg();applySkin();autoNight(true);updSos();toast('설정을 저장했습니다')};
+
+/* ================= auto day/night (Korea, approx sunrise/sunset by month) ================= */
+const SUN=[[7.6,17.6],[7.3,18.1],[6.7,18.6],[6.0,19.1],[5.4,19.5],[5.2,19.9],[5.4,19.9],[5.8,19.4],[6.2,18.7],[6.6,18.0],[7.1,17.4],[7.5,17.3]];
+function autoNight(force){if(!CFG.autoNight)return;if(!force&&Date.now()-nightManualAt<30*60*1000)return;const d=new Date(),h=d.getHours()+d.getMinutes()/60,[r,st]=SUN[d.getMonth()];const n=h<r||h>=st;if(force||n!==isNight())setNight(n)}
+autoNight(true);setInterval(()=>autoNight(false),60000);
+
+/* ================= sound effects ================= */
+function tone(f,t0,len,type='sine',vol=.08,f2){if(!CFG.sfx)return;try{ensureAudio();if(!actx)return;actx.resume();const o=actx.createOscillator(),g=actx.createGain(),t=actx.currentTime+t0;o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+len);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+len);o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+len+.05)}catch{}}
+function noise(t0,len,vol=.06,from=300,to=3000){if(!CFG.sfx)return;try{ensureAudio();if(!actx)return;const n=actx.sampleRate*len,b=actx.createBuffer(1,n,actx.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
+  const s=actx.createBufferSource();s.buffer=b;const f=actx.createBiquadFilter();f.type='bandpass';const t=actx.currentTime+t0;f.frequency.setValueAtTime(from,t);f.frequency.exponentialRampToValueAtTime(to,t+len);const g=actx.createGain();
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+len*.4);g.gain.exponentialRampToValueAtTime(.0001,t+len);s.connect(f);f.connect(g);g.connect(actx.destination);s.start(t)}catch{}}
+const SFX={chime(){tone(880,0,.35,'sine',.07);tone(660,.32,.5,'sine',.07)},takeoff(){noise(0,3.2,.07,250,2600);tone(180,0,3,'sawtooth',.02,520)},
+  cruise(){tone(523,0,.25,'triangle',.06);tone(659,.2,.25,'triangle',.06);tone(784,.4,.4,'triangle',.06)},approach(){tone(740,0,.3,'square',.04);tone(740,.45,.3,'square',.04)},
+  touchdown(){noise(0,.6,.08,120,400);tone(98,0,.4,'sine',.1);setTimeout(()=>SFX.chime(),700)},warn(){tone(1200,0,.15,'square',.05);tone(1200,.22,.15,'square',.05)}};
+
+/* ================= tower ================= */
+const ticker=$('#ticker');let twrLog=store.get('twrlog',[]);
+function twr(msg,say){const t=new Date().toTimeString().slice(0,5);twrLog=[[t,msg],...twrLog].slice(0,30);store.set('twrlog',twrLog);renderTwr();SFX.chime();if(say!==false&&voiceOn)speak(msg)}
+function renderTwr(){ticker.innerHTML='';twrLog.slice(0,12).forEach(([t,m])=>{const d=document.createElement('div');d.innerHTML='<b>TWR '+t+'</b>';d.append(document.createTextNode(m));ticker.append(d)})}
+renderTwr();if(!twrLog.length)twr(`${CFG.call}, 관제탑입니다. 계기 점검을 마쳤습니다.`,false);
+
+/* ================= flight phases ================= */
+const PHASES=['PARKED','TAXI','TAKEOFF','CLIMB','CRUISE','APPROACH','ARRIVED'];
+let phase='',phaseAt=performance.now(),cond={},pitchV=0,slowDown=false,approachManual=false,slowWarned=0,tripStart=null,altMax=null,flightNo=store.get('flightNo',1);
+const rwy=()=>'RWY '+pad(Math.round(((S.heading%360)+360)%360/10)||36);
+function phaseLabel(){return{PARKED:'HOLD SHORT · '+rwy(),TAXI:'TAXI · '+rwy(),TAKEOFF:'TAKEOFF · '+rwy(),CLIMB:'CLIMB',CRUISE:'CRUISE · FL'+pad(Math.round(Math.max(0,S.alt||0)*3.28/100)).padStart(3,'0'),APPROACH:'APPROACH · '+rwy(),ARRIVED:'ARRIVED · '+rwy()}[phase]}
+function setPhase(p,why){if(p===phase)return;const prev=phase;phase=p;phaseAt=performance.now();cond={};$('#pillPhase').textContent=p;
+  const idx=PHASES.indexOf(p);$$('#phases span').forEach((x,i)=>{x.classList.toggle('on',i===idx);x.classList.toggle('done',i<idx&&p!=='PARKED')});
+  const cb=$('#clrBanner');cb.className='clr'+(p==='TAKEOFF'||p==='APPROACH'?' amber':'');
+  cb.textContent={PARKED:`HOLD SHORT · ${rwy()}`,TAXI:`TAXI TO ${rwy()}`,TAKEOFF:'CLEARED FOR TAKEOFF',CLIMB:'CLIMBING · CONTACT DEPARTURE',CRUISE:'CRUISE · ENJOY THE FLIGHT',APPROACH:`CLEARED TO LAND · ${rwy()}`,ARRIVED:'ARRIVED · WELCOME'}[p];
+  if(p==='TAXI'&&(prev==='PARKED'||prev==='ARRIVED')){tripStart=Date.now();altMax=S.alt;twr(`${CFG.call}, ${rwy().replace('RWY ','활주로 ')}번으로 이동하십시오.`)}
+  if(p==='TAKEOFF'){SFX.takeoff();twr(`${CFG.call}, ${rwy().replace('RWY ','활주로 ')} 이륙을 허가합니다.${wx.t!=null?` 현재 기온 ${Math.round(wx.t)}도.`:''}`)}
+  if(p==='CLIMB'&&prev==='APPROACH'){twr(`${CFG.call}, 복행을 확인했습니다. 다시 상승하십시오.`)}
+  if(p==='CRUISE'){SFX.cruise();twr(`${CFG.call}, 순항에 들어섰습니다. 안전 운전 하십시오.`)}
+  if(p==='APPROACH'){SFX.approach();twr(`${CFG.call}, ${rwy().replace('RWY ','활주로 ')} 착륙을 허가합니다. 감속하십시오.`)}
+  if(p==='ARRIVED'){SFX.touchdown();const d=S.dist;twr(`${CFG.call}, 착륙을 확인했습니다. 목적지에 도착했습니다. 주행 ${d.toFixed(1)}킬로미터.`);saveTrip(true);approachManual=false}}
+function holdFor(key,ok,sec,now){if(ok){cond[key]=cond[key]||now;return now-cond[key]>=sec*1000}cond[key]=0;return false}
+function phaseTick(now){const v=S.speed,el=(now-phaseAt)/1000;if(S.alt!=null)altMax=altMax==null?S.alt:Math.max(altMax,S.alt);
+  switch(phase){case'PARKED':if(holdFor('mv',v>5,1.5,now))setPhase('TAXI');break;
+    case'TAXI':if(holdFor('to',v>25,1,now))setPhase('TAKEOFF');else if(holdFor('st',v<1,40,now))setPhase('PARKED');break;
+    case'TAKEOFF':if(v>50||el>12)setPhase('CLIMB');else if(holdFor('ab',v<5,6,now))setPhase('TAXI');break;
+    case'CLIMB':if(holdFor('cr',v>=60,6,now))setPhase('CRUISE');else if(holdFor('dn',v<20,10,now))setPhase('APPROACH');break;
+    case'CRUISE':if(holdFor('ap',v<25,8,now))setPhase('APPROACH');break;
+    case'APPROACH':if(holdFor('td',v<3,4,now))setPhase('ARRIVED');else if(!approachManual&&holdFor('ga',v>60,10,now))setPhase('CRUISE');break;
+    case'ARRIVED':if(holdFor('rl',v>5,2,now))setPhase('TAXI');else if(el>20)setPhase('PARKED');break}
+  const tgtPitch={TAKEOFF:46,CLIMB:30,APPROACH:-18}[phase]||0;pitchV+=(tgtPitch-pitchV)*Math.min(1,.04);
+  slowDown=S.speed>CFG.slow;if(slowDown&&now-slowWarned>15000){slowWarned=now;SFX.warn();twr(`${CFG.call}, 과속입니다. ${CFG.slow}킬로미터 이하로 감속하십시오.`)}
+  $('#clrBanner').classList.toggle('red',slowDown);if(slowDown)$('#clrBanner').textContent='SLOW DOWN';}
+function startApproach(){if(phase==='PARKED'||phase==='ARRIVED'){toast('주행 중일 때 착륙을 시작할 수 있습니다');return}approachManual=true;setPhase('APPROACH')}
+function goAround(){if(phase!=='APPROACH'){toast('착륙(접근) 중일 때만 복행할 수 있습니다');return}approachManual=false;setPhase('CLIMB')}
+$('#btnLand').onclick=startApproach;$('#btnGoAround').onclick=goAround;
+setPhase('PARKED');
+
+/* ================= demo flight ================= */
+let demo=null;const DEMO=[[0,0],[2,12],[8,55],[16,95],[36,22],[46,0]];
+function demoStop(){if(!demo)return;clearInterval(demo.t);demo=null;simSet(false);$('#btnDemo').textContent='▶ 시연';$('#btnDemo').classList.remove('on')}
+$('#btnDemo').onclick=()=>{if(demo){demoStop();return}if(S.gps)gpsSet(false);simSet(true);S.target=0;const t0=Date.now();demo={t:setInterval(()=>{const e=(Date.now()-t0)/1000;let tg=0;for(const [ts,sp] of DEMO)if(e>=ts)tg=sp;S.target=tg;
+    if(e>34&&e<35&&phase!=='APPROACH')startApproach();if(phase==='ARRIVED'||e>75){setTimeout(demoStop,3000);clearInterval(demo.t)}},250)};$('#btnDemo').textContent='■ 시연 중지';$('#btnDemo').classList.add('on');toast('시연 비행을 시작합니다 (약 1분)')};
+
+/* ================= cockpit: volume knob · mute · rec · SOS ================= */
+let muted=store.get('muted',false),mvol=store.get('mvol',70);
+function setMvol(v){mvol=Math.max(0,Math.min(100,v));$('#volKV').textContent=mvol;$('#volKnob i').style.transform=`rotate(${mvol/100*300-150}deg)`;$('#vol').value=mvol;$('#rVol').value=mvol;applyVol();radioH.volume=radioN.volume=mvol/100;store.set('mvol',mvol)}
+knobDrag($('#volKnob'),d=>setMvol(mvol+d*4),k=>setMvol(mvol+((k==='ArrowUp'||k==='ArrowRight')?5:-5)));setMvol(mvol);
+function setMute(on){muted=on;audio.muted=radioH.muted=radioN.muted=on;$('#tMute').setAttribute('aria-pressed',on);$('#lMute').classList.toggle('red',on);store.set('muted',on);$$('.dk[data-a="mute"]').forEach(x=>x.classList.toggle('on',on))}
+$('#tMute').onclick=()=>setMute(!muted);setMute(muted);
+async function setRec(on){const el=$('#tRec');if(on){if(!camStream)await camOn();if(!camStream){el.setAttribute('aria-pressed','false');toast('카메라를 켤 수 없어 녹화를 시작하지 못했습니다');return}
+    if(!(rec&&rec.state==='recording'))$('#recBtn').click();el.setAttribute('aria-pressed','true');$('#lRec').classList.add('red');twr(`${CFG.call}, 주행 녹화를 시작합니다.`,false)}
+  else{if(rec&&rec.state==='recording')$('#recBtn').click();el.setAttribute('aria-pressed','false');$('#lRec').classList.remove('red')}
+  $$('.dk[data-a="rec"]').forEach(x=>x.classList.toggle('on',on))}
+$('#tRec').onclick=()=>setRec($('#tRec').getAttribute('aria-pressed')!=='true');
+function updSos(){$('#sosV').textContent=$('#sosLid').getAttribute('aria-expanded')==='true'?(CFG.sos?'누르면 '+CFG.sos+' 연결':'설정에서 번호 등록'):'덮개를 여세요'}
+$('#sosLid').onclick=()=>{const open=$('#sosLid').getAttribute('aria-expanded')!=='true';$('#sosLid').setAttribute('aria-expanded',open);$('#sosBtn').disabled=!open;updSos()};
+$('#sosBtn').onclick=()=>{if(!CFG.sos){toast('설정에서 SOS 전화번호를 먼저 등록하세요');$('#btnSettings').click();return}SFX.warn();twr(`${CFG.call}, 비상 연락을 시작합니다.`,false);location.href='tel:'+CFG.sos;
+  setTimeout(()=>{$('#sosLid').setAttribute('aria-expanded','false');$('#sosBtn').disabled=true;updSos()},1500)};
+updSos();
+
+/* ================= external nav apps ================= */
+function openApp(scheme,web){const t=setTimeout(()=>{if(document.visibilityState==='visible')window.open(web,'_blank','noopener')},1600);location.href=scheme;addEventListener('blur',()=>clearTimeout(t),{once:true})}
+const qv=()=>encodeURIComponent($('#dest').value.trim());
+function openTmap(){const q=qv();openApp(q?`tmap://search?name=${q}`:'tmap://',links(q).t)}
+function openNaver(){const q=qv();openApp(q?`nmap://search?query=${q}&appname=seum.cockpit`:'nmap://map?appname=seum.cockpit',links(q).n)}
+function openKakao(){const q=qv();openApp(q?`kakaomap://search?q=${q}`:'kakaomap://open',links(q).k)}
+$('#appTmap').onclick=()=>{addRecent();openTmap()};$('#appNaver').onclick=()=>{addRecent();openNaver()};$('#appKakao').onclick=()=>{addRecent();openKakao()};
+
+/* ================= control deck + keyboard + media keys ================= */
+let srcMode=store.get('srcMode','music');
+function mediaToggle(){if(srcMode==='radio'){radioOn?radioStop():radioPlay()}else{audio.paused?doPlay():(audio.pause(),setPl('PAUSE'))}}
+function mediaPrev(){srcMode==='radio'?tune(sti-1):$('#kPrev').click()}
+function mediaNext(){srcMode==='radio'?tune(sti+1):$('#kNext').click()}
+function srcSwitch(){srcMode=srcMode==='music'?'radio':'music';store.set('srcMode',srcMode);toast('음원: '+(srcMode==='radio'?'라디오':'음악'));if(srcMode==='radio'){audio.pause();setPl('PAUSE');radioPlay()}else{radioStop();if(tracks.length)doPlay()}}
+function scrollTo(id){const m=$(id);if(m.classList.contains('folded'))m.querySelector('.fold').click();m.scrollIntoView({behavior:'smooth',block:'start'})}
+function nowPlaying(){const t=srcMode==='radio'?(stations[sti]?stations[sti].name+' 청취 중':'라디오 꺼짐'):(cur>=0?tracks[cur].name:'재생 중인 곡 없음');toast('NOW: '+t);if(voiceOn)speak(t);scrollTo(srcMode==='radio'?'#m-radio':'#m-player')}
+const DECK=[['grp','음악'],['prev','⏮','이전','1'],['play','⏯','재생','2'],['next','⏭','다음','3'],['src','⇄','전환','4'],['mute','🔇','음소거','5'],
+  ['grp','화면'],['gauge','◔','속도계','Q'],['map','⌖','지도','W'],['radio','📻','라디오','E'],['now','♪','NOW','R'],['full','⛶','전체','T'],
+  ['grp','주행'],['rec','●','녹화','A'],['night','☾','주야간','S'],['tmap','T','T맵','D'],['naver','N','네이버지도','F'],['land','✈','착륙','G']];
+const ACT={prev:mediaPrev,play:mediaToggle,next:mediaNext,src:srcSwitch,mute:()=>setMute(!muted),gauge:()=>{showView('gauge');scrollTo('#m-pd')},map:()=>{showView('map');scrollTo('#m-pd')},
+  radio:()=>scrollTo('#m-radio'),now:nowPlaying,full:()=>$('#tFull').click(),rec:()=>setRec($('#tRec').getAttribute('aria-pressed')!=='true'),night:()=>setNight(!isNight(),true),
+  tmap:openTmap,naver:openNaver,land:()=>phase==='APPROACH'?goAround():startApproach()};
+const deckEl=$('#deck');DECK.forEach(d=>{if(d[0]==='grp'){const g=document.createElement('div');g.className='grp';g.textContent=d[1];deckEl.append(g);return}
+  const b=document.createElement('button');b.className='dk';b.dataset.a=d[0];b.innerHTML=`<i>${d[1]}</i><span>${d[2]}</span><kbd>${d[3]}</kbd>`;b.onclick=()=>ACT[d[0]]();deckEl.append(b)});
+const KEYS={};DECK.forEach(d=>{if(d[0]!=='grp')KEYS[d[3].toLowerCase()]=d[0]});
+addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea')||e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key.toLowerCase();
+  if(KEYS[k]){e.preventDefault();ACT[KEYS[k]]();return}
+  if(k===' '){e.preventDefault();mediaToggle()}else if(k==='arrowup'||k==='+'||k==='='){e.preventDefault();setMvol(mvol+5)}else if(k==='arrowdown'||k==='-'){e.preventDefault();setMvol(mvol-5)}
+  else if(k==='arrowright'){mediaNext()}else if(k==='arrowleft'){mediaPrev()}});
+if('mediaSession' in navigator){try{navigator.mediaSession.setActionHandler('play',mediaToggle);navigator.mediaSession.setActionHandler('pause',mediaToggle);navigator.mediaSession.setActionHandler('nexttrack',mediaNext);navigator.mediaSession.setActionHandler('previoustrack',mediaPrev)}catch{}}
+setInterval(()=>{if('mediaSession' in navigator&&window.MediaMetadata){const t=srcMode==='radio'&&radioOn?stations[sti]?.name:(cur>=0?tracks[cur].name:null);if(t)navigator.mediaSession.metadata=new MediaMetadata({title:t,artist:'SEUM ONE',artwork:[{src:'icon-512.png',sizes:'512x512',type:'image/png'}]})}},3000);
+
+/* ================= logbook + fuel ================= */
+let trips=store.get('trips',[]),fuel=store.get('fuel',[]);
+const fmtHM=s=>`${Math.floor(s/3600)}:${pad(Math.floor(s%3600/60))}`;
+function saveTrip(auto){if(S.dist<0.05&&S.time<30){if(!auto)toast('저장할 주행 기록이 없습니다');return}
+  const st=tripStart||Date.now()-S.time*1000;trips=[{s:st,d:+S.dist.toFixed(2),t:Math.round(S.time),m:Math.round(S.max),a:S.time>5?Math.round(S.dist/(S.time/3600)):0,h:altMax!=null?Math.round(altMax):null},...trips].slice(0,200);
+  store.set('trips',trips);flightNo++;store.set('flightNo',flightNo);S.dist=0;S.time=0;S.max=0;tripStart=null;altMax=null;renderLog();if(!auto)toast('주행 기록을 저장했습니다')}
+$('#logSave').onclick=()=>saveTrip(false);
+function renderLog(){const tb=$('#logBody');tb.innerHTML='';trips.slice(0,30).forEach(r=>{const d=new Date(r.s),tr=document.createElement('tr');
+    tr.innerHTML=`<td>${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}</td><td>${r.d.toFixed(1)}</td><td>${fmtHM(r.t)}</td><td>${r.a}</td><td>${r.m}</td><td>${r.h==null?'-':r.h+'m'}</td>`;tb.append(tr)});
+  if(!trips.length)tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--dim)">아직 저장된 주행이 없습니다</td></tr>';
+  const mon=new Date();mon.setDate(1);mon.setHours(0,0,0,0);const m=trips.filter(r=>r.s>=mon.getTime());
+  $('#logStats').innerHTML=`<div><span>이번 달 주행</span><b>${m.reduce((a,r)=>a+r.d,0).toFixed(1)} km</b></div><div><span>이번 달 시간</span><b>${fmtHM(m.reduce((a,r)=>a+r.t,0))}</b></div><div><span>전체 기록</span><b>${trips.length}회</b></div>`}
+$('#fDate').value=new Date().toISOString().slice(0,10);
+$('#fuelForm').onsubmit=e=>{e.preventDefault();const r={dt:$('#fDate').value,l:+$('#fLit').value,c:+$('#fCost').value,o:+$('#fOdo').value};if(!r.dt||!r.l||!r.o){toast('날짜·주유량·누적 km를 입력하세요');return}
+  fuel=[...fuel,r].sort((a,b)=>a.o-b.o);store.set('fuel',fuel);$('#fLit').value=$('#fCost').value=$('#fOdo').value='';renderFuel();toast('주유 기록을 추가했습니다')};
+function renderFuel(){const tb=$('#fuelBody');tb.innerHTML='';const rows=fuel.map((r,i)=>({...r,eff:i>0&&r.l?(r.o-fuel[i-1].o)/r.l:null,i}));
+  rows.slice().reverse().forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${r.dt}</td><td>${r.l.toFixed(1)}</td><td>${r.c?r.c.toLocaleString():'-'}</td><td>${r.o.toLocaleString()}</td><td>${r.eff?r.eff.toFixed(1):'-'}</td><td></td>`;
+    const x=document.createElement('button');x.className='btn';x.style.padding='2px 7px';x.textContent='삭제';x.onclick=()=>{fuel.splice(r.i,1);store.set('fuel',fuel);renderFuel()};tr.lastChild.append(x);tb.append(tr)});
+  if(!fuel.length)tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--dim)">주유할 때마다 기록하면 연비가 계산됩니다</td></tr>';
+  const effs=rows.filter(r=>r.eff);const avg=effs.length?effs.reduce((a,r)=>a+(r.o-fuel[r.i-1].o),0)/effs.reduce((a,r)=>a+r.l,0):null;
+  const ym=new Date().toISOString().slice(0,7);const cost=fuel.filter(r=>r.dt.startsWith(ym)).reduce((a,r)=>a+(r.c||0),0);
+  $('#fuelStats').innerHTML=`<div><span>평균 연비</span><b>${avg?avg.toFixed(1)+' km/L':'-'}</b></div><div><span>이번 달 주유비</span><b>${cost.toLocaleString()}원</b></div><div><span>주유 횟수</span><b>${fuel.length}회</b></div>`}
+renderLog();renderFuel();
+
 showView(store.get('view','hud')==='cam'?'hud':store.get('view','hud'));
 
 /* ---------- main loop ---------- */
@@ -740,9 +1040,10 @@ function frame(now){const dt=Math.min(.1,(now-lastT)/1000);lastT=now;
   if(S.sim)S.heading=(S.heading+Math.sin(now/7000)*dt*6+360)%360;
   {const tgtH=(S.speed>8&&S.gpsHeading!=null)?S.gpsHeading:(!S.sim&&sensorHdg!=null)?sensorHdg:(S.gps?S.gpsHeading:null);if(tgtH!=null){const d=((tgtH-S.heading+540)%360)-180;S.heading=(S.heading+d*Math.min(1,dt*3)+360)%360}}
   if(!S.gps)S.dist+=S.speed*dt/3600;if(S.speed>2)S.time+=dt;S.road+=S.speed*dt*.9;if(S.speed>S.max&&(S.gps||S.sim))S.max=S.speed;
+  phaseTick(now);
   overLimit=limitOn&&S.speed>limit;document.body.classList.toggle('alert',overLimit);
   if(overLimit&&now-lastAlert>4000){lastAlert=now;beep(1320,.18);setTimeout(()=>beep(1320,.18),250);if(voiceOn)speak(`속도를 줄이세요. 현재 ${Math.round(S.speed)} 킬로미터`)}
-  if(curView==='hud')drawHUD();else if(curView==='gauge')drawGauge();else if(curView==='compass')drawCompass();
+  if(curView==='hud')drawHUD();else if(curView==='gauge')drawGauge();else if(curView==='compass')drawCompass();else if(curView==='rmap'&&now-(window._rmT||0)>120){window._rmT=now;drawRmap()}
   if(curView==='cam'&&camStream){$('#camT').textContent=new Date().toLocaleString('ko-KR')+(rec&&rec.state==='recording'?`  ● REC ${fmt((Date.now()-recStart)/1000)}`:'');$('#camS').textContent=`${Math.round(S.speed)} km/h`}
   if(now-slow>300){slow=now;const avg=S.time>5?S.dist/(S.time/3600):0;$('#iSpd').textContent=Math.round(S.speed);$('#iMax').textContent=Math.round(S.max);$('#iAvg').textContent=Math.round(avg);$('#iDist').textContent=S.dist.toFixed(1);
     const tt=Math.floor(S.time);$('#iTime').textContent=`${pad(Math.floor(tt/3600))}:${pad(Math.floor(tt%3600/60))}:${pad(tt%60)}`;$('#iAlt').textContent=S.alt!=null?Math.round(S.alt):'---';
