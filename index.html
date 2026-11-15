@@ -236,6 +236,31 @@ body.compact #m-player,body.compact #m-radio,body.compact #m-eq,body.compact #m-
 body.compact .grid2:has(#m-player),body.compact .grid2:has(#m-eq){display:none}
 :root[data-night="1"] .osmTiles{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.6)}
 .applinks{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+
+/* ===== Android phone / tablet responsive ===== */
+.deck{grid-template-columns:repeat(5,minmax(0,1fr))}.dk{min-width:0}
+.dial .v{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:520px){
+ .dials{gap:4px}.dial .v{font-size:10.5px}.dial .lbl{font-size:10px}
+ .deck{gap:5px}.dk i{font-size:17px}.dk span{font-size:10px}.dk kbd{display:none}
+ .info b{font-size:15px}
+}
+/* phone landscape: driving layout – display fills the screen height */
+@media (orientation:landscape) and (max-height:520px){
+ body{font-size:13px}
+ .top{grid-template-columns:auto 1fr;gap:8px}
+ .brand b{font-size:15px;letter-spacing:.14em}.brand span{display:none}.brand .pills{margin-top:3px}
+ .brand .btn{padding:3px 7px;font-size:11px}
+ .dial canvas{width:42px}.dial .v{font-size:10px}.dial .lbl{display:none}
+ .info{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin-bottom:4px}
+ .info>*{padding:3px 6px!important}.info b{font-size:16px!important}
+ .pd{aspect-ratio:auto;height:calc(100svh - 112px);min-height:200px}
+ .modes{grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+ .mode{padding:4px 2px!important;font-size:10px}
+ .mod{padding:8px 10px!important;margin-bottom:8px!important}
+}
+/* tablet portrait: bigger display */
+@media (orientation:portrait) and (min-width:700px){.pd{aspect-ratio:auto;height:min(62vh,820px)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -645,7 +670,7 @@ function drawHUD(){const W=hud.width,H=hud.height,c=hc,hz=H*.47+pitchV,night=doc
   if(overLimit){c.fillStyle=css('--warn');c.font='700 30px "Barlow Condensed",sans-serif';c.textAlign='center';c.fillText(`속도 경보 ${limit} KM/H`,cx,hz+60)}}
 
 const gc=$('#gauge').getContext('2d');
-function drawGauge(){const c=gc,W=1000,H=538,cx=W/2,cy=H*.92,R=H*.8;c.clearRect(0,0,W,H);c.fillStyle='#071009';c.fillRect(0,0,W,H);
+function drawGauge(){const c=gc,W=gc.canvas.width,H=gc.canvas.height,R=Math.min(H*.8,W*.46),cx=W/2,cy=Math.min(H*.92,H/2+R*.62);c.clearRect(0,0,W,H);c.fillStyle='#071009';c.fillRect(0,0,W,H);
   c.lineWidth=18;c.strokeStyle='#1d2a26';c.beginPath();c.arc(cx,cy,R,Math.PI,2*Math.PI);c.stroke();
   const f=Math.min(S.speed/180,1);c.strokeStyle=overLimit?css('--warn'):css('--phos');c.beginPath();c.arc(cx,cy,R,Math.PI,Math.PI+Math.PI*f);c.stroke();
   c.strokeStyle='#d9e2d6';c.fillStyle='#d9e2d6';c.lineWidth=2;c.font='600 22px "IBM Plex Mono",monospace';c.textAlign='center';
@@ -656,7 +681,7 @@ function drawGauge(){const c=gc,W=1000,H=538,cx=W/2,cy=H*.92,R=H*.8;c.clearRect(
   c.fillStyle=css('--brass');c.beginPath();c.arc(cx,cy,16,0,7);c.fill();
   c.fillStyle=css('--phos');c.font='600 84px "IBM Plex Mono",monospace';c.fillText(Math.round(S.speed),cx,cy-120);c.fillStyle='#7f948b';c.font='600 20px "Barlow Condensed",sans-serif';c.fillText(`KM/H · 최고 ${Math.round(S.max)}`,cx,cy-86)}
 const cc=$('#compass').getContext('2d');const DIRS=['북','북동','동','남동','남','남서','서','북서'];
-function drawCompass(){const c=cc,W=1000,H=538,cx=W/2,cy=H/2,R=H*.42;c.fillStyle='#071009';c.fillRect(0,0,W,H);
+function drawCompass(){const c=cc,W=cc.canvas.width,H=cc.canvas.height,cx=W/2,cy=H/2,R=Math.min(W,H)*.42;c.fillStyle='#071009';c.fillRect(0,0,W,H);
   let g=c.createRadialGradient(cx-40,cy-40,10,cx,cy,R);g.addColorStop(0,'#2a3430');g.addColorStop(1,'#0e1412');c.fillStyle=g;c.beginPath();c.arc(cx,cy,R,0,7);c.fill();c.lineWidth=8;c.strokeStyle=css('--brass');c.stroke();
   c.save();c.translate(cx,cy);c.rotate(-S.heading*Math.PI/180);c.strokeStyle='#d9e2d6';c.textAlign='center';c.font='700 30px "Barlow Condensed",sans-serif';
   for(let d=0;d<360;d+=10){c.save();c.rotate(d*Math.PI/180);c.lineWidth=d%30?1:2.5;c.beginPath();c.moveTo(0,-R+10);c.lineTo(0,-R+(d%30?20:30));c.stroke();const L={0:'N',90:'E',180:'S',270:'W'}[d];if(L){c.fillStyle=L==='N'?css('--warn'):'#d9e2d6';c.fillText(L,0,-R+62)}c.restore()}
@@ -676,7 +701,7 @@ function initRmap(){if(!window.L){return}if(rmap){setTimeout(()=>rmap.invalidate
   mapLayers.round=tiles().addTo(rmap);rmarker=L.circleMarker([S.lat,S.lon],{radius:1,opacity:0,fillOpacity:0}).addTo(rmap);setTimeout(()=>rmap.invalidateSize(),60)}
 const rr=$('#rmapRing'),rrc=rr.getContext('2d');
 function drawRmap(){if(!rmap)return;rmap.setView([S.lat,S.lon],rmap.getZoom(),{animate:false});$('#rmap').style.transform=`rotate(${-S.heading}deg)`;
-  const c=rrc,W=rr.width,H=rr.height,cx=W/2,cy=H/2,R=H*.45;c.clearRect(0,0,W,H);
+  const c=rrc,W=rr.width,H=rr.height,cx=W/2,cy=H/2,R=Math.min(W,H)*.45;c.clearRect(0,0,W,H);
   c.save();c.translate(cx,cy);c.rotate(-S.heading*Math.PI/180);c.textAlign='center';c.font='700 22px "Barlow Condensed",sans-serif';
   for(let d=0;d<360;d+=10){c.save();c.rotate(d*Math.PI/180);c.strokeStyle='#e8fff1';c.lineWidth=d%30?1:2.5;c.beginPath();c.moveTo(0,-R+2);c.lineTo(0,-R+(d%30?10:18));c.stroke();
     const Lb={0:'N',90:'E',180:'S',270:'W'}[d];if(Lb){c.fillStyle=Lb==='N'?css('--warn'):'#e8fff1';c.strokeStyle='#000';c.lineWidth=4;c.strokeText(Lb,0,-R+40);c.fillText(Lb,0,-R+40)}c.restore()}c.restore();
@@ -1054,6 +1079,24 @@ if(reduce)setInterval(()=>frame(performance.now()),400);else requestAnimationFra
 
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 })();
+</script>
+
+<script>
+/* Android 폰 가로(운전) 화면: 주 디스플레이로 자동 스크롤 */
+(function(){const mq=matchMedia('(orientation:landscape) and (max-height:520px)');
+function go(){if(mq.matches){const m=document.getElementById('m-pd');if(m)setTimeout(()=>m.scrollIntoView({block:'start'}),350)}window.dispatchEvent(new Event('resize'))}
+(mq.addEventListener?mq.addEventListener('change',go):mq.addListener(go));addEventListener('load',go)})();
+</script>
+
+<script>
+/* 화면 크기에 맞춰 계기판 캔버스 비율 자동 조정 (폰/태블릿, 가로/세로) */
+(function(){const pd=document.querySelector('.pd');if(!pd)return;
+function fit(){const r=pd.getBoundingClientRect();if(r.width<50||r.height<50)return;
+ let W=1000,H=Math.round(1000*r.height/r.width);if(H<480){W=Math.round(480*r.width/r.height);H=480}if(H>1800)H=1800;
+ ['hud','gauge','compass','rmapRing'].forEach(id=>{const c=document.getElementById(id);if(c&&(c.width!==W||c.height!==H)){c.width=W;c.height=H}});
+ const w=document.querySelector('.rmapWrap');if(w){const s=Math.min(r.width,r.height)*.9;w.style.setProperty('height',s+'px','important');w.style.setProperty('width',s+'px','important');w.style.top=((r.height-s)/2)+'px'}
+ try{if(typeof rmap!=='undefined'&&rmap)rmap.invalidateSize()}catch(e){}}
+if(window.ResizeObserver)new ResizeObserver(fit).observe(pd);addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,300));fit()})();
 </script>
 </body>
 </html>
