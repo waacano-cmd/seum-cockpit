@@ -234,6 +234,7 @@ dialog#setDlg::backdrop{background:#000a}
 .setg label{font:600 12px var(--f-ko);color:var(--dim)}
 body.compact #m-player,body.compact #m-radio,body.compact #m-eq,body.compact #m-apps,body.compact #m-nav,body.compact #m-log,body.compact .dials{display:none!important}
 body.compact .grid2:has(#m-player),body.compact .grid2:has(#m-eq){display:none}
+:root[data-night="1"] .osmTiles{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.6)}
 .applinks{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -668,8 +669,7 @@ function drawCompass(){const c=cc,W=1000,H=538,cx=W/2,cy=H/2,R=H*.42;c.fillStyle
 /* ---------- map (Leaflet + OSM) ---------- */
 let map=null,marker=null,follow=true,trail=null,rmap=null,rmarker=null;const mapLayers={};
 const isNight=()=>document.documentElement.dataset.night==='1';
-function tiles(){return isNight()?L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd',attribution:'© OpenStreetMap © CARTO'})
-  :L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'})}
+function tiles(){return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap',className:'osmTiles'})}
 function retile(){[['main',map],['round',rmap]].forEach(([k,m])=>{if(!m)return;if(mapLayers[k])m.removeLayer(mapLayers[k]);mapLayers[k]=tiles().addTo(m)})}
 function initRmap(){if(!window.L){return}if(rmap){setTimeout(()=>rmap.invalidateSize(),50);return}
   rmap=L.map('rmap',{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false,keyboard:false,boxZoom:false}).setView([S.lat,S.lon],16);
